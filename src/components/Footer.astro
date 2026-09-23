@@ -1,5 +1,5 @@
 ---
-import { COMPANY, CONTACT_EMAIL } from '../consts';
+import { COMPANY, COMPANY_DETAILS, CONTACT_EMAIL, SITE_TITLE } from '../consts';
 ---
 
 <footer>
@@ -8,7 +8,8 @@ import { COMPANY, CONTACT_EMAIL } from '../consts';
 		<a href="/support/">Support</a>
 		<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
 	</nav>
-	<p>&copy; 2026 {COMPANY}. All rights reserved.</p>
+	<p>&copy; 2026 {COMPANY} t/a {SITE_TITLE}. All rights reserved.</p>
+	<p class="legal">{SITE_TITLE} is a trading name of {COMPANY}. {COMPANY_DETAILS}</p>
 </footer>
 <style>
 	footer {
@@ -36,5 +37,12 @@ import { COMPANY, CONTACT_EMAIL } from '../consts';
 	}
 	p {
 		margin: 0.75rem 0 0;
+		font-size: 0.75rem;
+	}
+	.legal {
+		margin-top: 0.4rem;
+		font-size: 0.625rem;
+		line-height: 1.4;
+		opacity: 0.75;
 	}
 </style>
