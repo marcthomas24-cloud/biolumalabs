@@ -1,5 +1,9 @@
-// Place any global data in this file.
-// You can import this data from anywhere in your site by using the `import` keyword.
+// Global site data. Everything that names the studio or a URL lives here.
 
-export const SITE_TITLE = "Astro Blog";
-export const SITE_DESCRIPTION = "Welcome to my website!";
+export const SITE_TITLE = "Bioluma Labs";
+export const SITE_DESCRIPTION =
+	"Small, glowing games for curious kids, grounded in real biology.";
+export const SITE_URL = "https://biolumalabs.com";
+export const COMPANY = "Bioluma Labs Ltd";
+export const CONTACT_EMAIL = "support@biolumalabs.com";
+export const PLAY_URL = "/play/";
