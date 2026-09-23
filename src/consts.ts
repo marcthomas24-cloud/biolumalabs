@@ -4,6 +4,7 @@ export const SITE_TITLE = "Bioluma Labs";
 export const SITE_DESCRIPTION =
 	"Small, glowing games for curious kids, grounded in real biology.";
 export const SITE_URL = "https://biolumalabs.com";
-export const COMPANY = "Bioluma Labs Ltd";
+// The legal owner of the site, the domain and the games. Bioluma Labs is the studio name, not a company.
+export const COMPANY = "Diamond Hands Ltd";
 export const CONTACT_EMAIL = "support@biolumalabs.com";
 export const PLAY_URL = "/play/";

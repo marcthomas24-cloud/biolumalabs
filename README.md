@@ -21,4 +21,4 @@ npm run deploy    # wrangler deploy
 
 `public/og.jpg` is the 1200×630 share image (social sites don't render SVG).
 
-© 2026 Bioluma Labs Ltd. All rights reserved.
+© 2026 Diamond Hands Ltd. All rights reserved.
