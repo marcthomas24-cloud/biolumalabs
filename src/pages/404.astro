@@ -1,0 +1,23 @@
+---
+import Page from '../layouts/Page.astro';
+import { SITE_TITLE } from '../consts';
+---
+
+<Page title={`Not found — ${SITE_TITLE}`} description="This page swam off somewhere.">
+	<div class="lost">
+		<img src="/favicon.svg" width="120" height="120" alt="" />
+		<h1>This page swam off</h1>
+		<p class="lede">We couldn't find what you were looking for.</p>
+		<p><a class="button" href="/">Back to the start</a></p>
+	</div>
+</Page>
+
+<style>
+	.lost {
+		text-align: center;
+	}
+	.lost img {
+		display: block;
+		margin: 0 auto 1rem;
+	}
+</style>
