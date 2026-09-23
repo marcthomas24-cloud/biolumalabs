@@ -1,0 +1,63 @@
+---
+import Page from '../layouts/Page.astro';
+import { CONTACT_EMAIL, SITE_TITLE } from '../consts';
+
+const subject = encodeURIComponent('Axolotl Odyssey — problem report');
+---
+
+<Page title={`Support — ${SITE_TITLE}`} description="Get help with a Bioluma Labs game, or report a problem.">
+	<h1>Support</h1>
+	<p class="lede">
+		Something not working, or stuck somewhere? Email us and a real person will reply.
+	</p>
+
+	<div class="card">
+		<p class="big">
+			<a href={`mailto:${CONTACT_EMAIL}?subject=${subject}`}>{CONTACT_EMAIL}</a>
+		</p>
+		<p class="muted small">We usually reply within a few working days, from the same address.</p>
+	</div>
+
+	<h2>What to include in a report</h2>
+	<p>The more of these you can include, the faster we can fix it:</p>
+	<ol>
+		<li><strong>The game</strong>, for example Axolotl Odyssey.</li>
+		<li><strong>Your device and system</strong>, for example "iPad Air, iPadOS 18" or "Windows 11 laptop".</li>
+		<li><strong>Your browser</strong>, for example Safari, Chrome or Edge.</li>
+		<li><strong>Where you were</strong> in the game: the level or place name at the top of the screen.</li>
+		<li><strong>What you did</strong>, step by step, just before it happened.</li>
+		<li><strong>What happened</strong>, and what you expected to happen instead.</li>
+		<li><strong>A screenshot or short video</strong>, if you can.</li>
+		<li><strong>Whether it happens again</strong> if you reload the page and try the same thing.</li>
+	</ol>
+
+	<h2>Before you write</h2>
+	<ul>
+		<li><strong>No sound?</strong> Check Sound and Music under Settings on the title screen and your device's silent switch, then tap the screen once.</li>
+		<li><strong>Something looks stuck?</strong> Reloading the page is safe. The game saves at checkpoint pools, and <em>Continue</em> picks up from there.</li>
+	</ul>
+
+	<p class="muted small">
+		Please don't include personal information about a child in your message. If you're under 13,
+		ask a parent or carer to email us for you. See our <a href="/privacy/">privacy page</a>.
+	</p>
+</Page>
+
+<style>
+	.card {
+		margin: 1.5rem 0 0.5rem;
+		text-align: center;
+	}
+	.big {
+		font-size: clamp(1.15rem, 1rem + 1.2vw, 1.5rem);
+		font-weight: 700;
+		margin-bottom: 0.4rem;
+	}
+	.small {
+		font-size: 0.92rem;
+		margin: 0;
+	}
+	ol li::marker {
+		color: var(--glow);
+	}
+</style>
