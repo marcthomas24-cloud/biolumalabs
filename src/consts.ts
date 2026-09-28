@@ -10,3 +10,4 @@ export const COMPANY_DETAILS =
 	"Registered in England and Wales, company no. 16857970. Registered office: 20 Wenlock Road, London N1 7GU.";
 export const CONTACT_EMAIL = "support@biolumalabs.com";
 export const PLAY_URL = "/play/";
+export const CAPYBALLER_URL = "/capyballer/";

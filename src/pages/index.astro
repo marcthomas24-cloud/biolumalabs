@@ -1,6 +1,6 @@
 ---
 import Page from '../layouts/Page.astro';
-import { SITE_TITLE, SITE_DESCRIPTION, CONTACT_EMAIL, PLAY_URL } from '../consts';
+import { SITE_TITLE, SITE_DESCRIPTION, CONTACT_EMAIL, PLAY_URL, CAPYBALLER_URL } from '../consts';
 ---
 
 <Page title={`${SITE_TITLE} — games for curious kids`} description={SITE_DESCRIPTION}>
@@ -10,8 +10,20 @@ import { SITE_TITLE, SITE_DESCRIPTION, CONTACT_EMAIL, PLAY_URL } from '../consts
 		<p class="lede">{SITE_DESCRIPTION}</p>
 	</section>
 
-	<section class="card release" aria-labelledby="new-release">
+	<section class="card release" aria-labelledby="capyballer">
 		<p class="kicker">New release</p>
+		<h2 id="capyballer">Capyballer</h2>
+		<p>
+			A laid-back ball game starring a capybara, the world's biggest rodent and the calmest
+			creature on the riverbank. Paddle, roll and bounce your way through the wetlands with a
+			little help from friends, just like a real <em>Hydrochoerus hydrochaeris</em>.
+		</p>
+		<p class="muted small">Plays in the browser on iPad, tablet and computer. No sign-up, no ads.</p>
+		<a class="button" href={CAPYBALLER_URL}>Play Capyballer <span aria-hidden="true">→</span></a>
+	</section>
+
+	<section class="card release" aria-labelledby="new-release">
+		<p class="kicker">Out now</p>
 		<h2 id="new-release">Axolotl Odyssey</h2>
 		<p>
 			A swimming, digging, regrowing adventure starring an axolotl. Lose a leg to a crayfish and
@@ -45,6 +57,9 @@ import { SITE_TITLE, SITE_DESCRIPTION, CONTACT_EMAIL, PLAY_URL } from '../consts
 	.lede {
 		max-width: 30rem;
 		margin: 0 auto;
+	}
+	.release + .release {
+		margin-top: clamp(1.5rem, 4vw, 2rem);
 	}
 	.release h2 {
 		margin-top: 0;
