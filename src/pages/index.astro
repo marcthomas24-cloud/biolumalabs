@@ -1,25 +1,28 @@
 ---
 import Page from '../layouts/Page.astro';
-import { SITE_TITLE, SITE_DESCRIPTION, CONTACT_EMAIL, PLAY_URL, CAPYBALLER_URL } from '../consts';
+import { SITE_TITLE, SITE_DESCRIPTION, CONTACT_EMAIL, PLAY_URL, CAPY_URL } from '../consts';
 ---
 
-<Page title={`${SITE_TITLE} — games for curious kids`} description={SITE_DESCRIPTION}>
+<Page title={`${SITE_TITLE} — designed by kids, engineered by adults`} description={SITE_DESCRIPTION}>
 	<section class="hero">
 		<img class="logo" src="/logo.svg" width="380" height="260" alt="Bioluma Labs" />
 		<h1 class="sr-only">{SITE_TITLE}</h1>
-		<p class="lede">{SITE_DESCRIPTION}</p>
+		<p class="tagline">Designed by kids. Engineered by adults.</p>
+		<p class="lede">
+			Every Bioluma Labs game and app starts as an idea from our kids. A grown-up then does the
+			careful engineering to make it real, safe and fun to use.
+		</p>
 	</section>
 
-	<section class="card release" aria-labelledby="capyballer">
+	<section class="card release" aria-labelledby="capy">
 		<p class="kicker">New release</p>
-		<h2 id="capyballer">Capyballer</h2>
+		<h2 id="capy">Capy Sports Club</h2>
 		<p>
-			A laid-back ball game starring a capybara, the world's biggest rodent and the calmest
-			creature on the riverbank. Paddle, roll and bounce your way through the wetlands with a
-			little help from friends, just like a real <em>Hydrochoerus hydrochaeris</em>.
+			Join the most laid-back club in sport. Grab your team of capybaras and roll, bounce and
+			splash your way to the trophy, no rush, no stress, just lots of good-natured fun.
 		</p>
 		<p class="muted small">Plays in the browser on iPad, tablet and computer. No sign-up, no ads.</p>
-		<a class="button" href={CAPYBALLER_URL}>Play Capyballer <span aria-hidden="true">→</span></a>
+		<a class="button" href={CAPY_URL}>Play Capy Sports Club <span aria-hidden="true">→</span></a>
 	</section>
 
 	<section class="card release" aria-labelledby="new-release">
@@ -53,6 +56,13 @@ import { SITE_TITLE, SITE_DESCRIPTION, CONTACT_EMAIL, PLAY_URL, CAPYBALLER_URL }
 		width: min(100%, 22rem);
 		height: auto;
 		margin: 0 auto 0.5rem;
+	}
+	.tagline {
+		margin: 0 0 0.6rem;
+		color: var(--glow);
+		font-size: clamp(1.1rem, 3vw, 1.35rem);
+		font-weight: 700;
+		letter-spacing: 0.02em;
 	}
 	.lede {
 		max-width: 30rem;
