@@ -10,7 +10,8 @@ import { SITE_TITLE } from '../consts';
 			<span>{SITE_TITLE}</span>
 		</a>
 		<div class="links">
-			<HeaderLink href="/">Home</HeaderLink>
+			<HeaderLink href="/#games">Games</HeaderLink>
+			<HeaderLink href="/#about">About</HeaderLink>
 			<HeaderLink href="/support/">Support</HeaderLink>
 		</div>
 	</nav>
@@ -37,6 +38,7 @@ import { SITE_TITLE } from '../consts';
 		font-weight: 650;
 		text-decoration: none;
 		letter-spacing: 0.01em;
+		white-space: nowrap;
 	}
 	.brand img {
 		filter: drop-shadow(0 0 6px rgba(124, 245, 208, 0.35));
@@ -44,5 +46,33 @@ import { SITE_TITLE } from '../consts';
 	.links {
 		display: flex;
 		gap: 0.25rem;
+	}
+	@media (max-width: 26rem) {
+		nav {
+			gap: 0.5rem;
+		}
+		.brand {
+			font-size: 0.95rem;
+		}
+		.brand img {
+			width: 30px;
+			height: 30px;
+		}
+		.links {
+			gap: 0;
+		}
+		.links :global(a) {
+			padding: 0 0.45rem;
+			font-size: 0.92rem;
+		}
+	}
+	@media (max-width: 22rem) {
+		.brand span {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip: rect(0, 0, 0, 0);
+		}
 	}
 </style>

@@ -1,47 +1,70 @@
 ---
 import Page from '../layouts/Page.astro';
+import GameCard from '../components/GameCard.astro';
 import { SITE_TITLE, SITE_DESCRIPTION, CONTACT_EMAIL, PRODUCTS } from '../consts';
+
+const featured = PRODUCTS.find((p) => p.featured) ?? PRODUCTS[0];
+const others = PRODUCTS.filter((p) => p !== featured);
 ---
 
-<Page title={`${SITE_TITLE} — designed by kids, engineered by adults`} description={SITE_DESCRIPTION}>
+<Page title={`${SITE_TITLE} — designed by kids, engineered by adults`} description={SITE_DESCRIPTION} wide>
 	<section class="hero">
 		<img class="logo" src="/logo.svg" width="380" height="260" alt="Bioluma Labs" />
-		<h1 class="sr-only">{SITE_TITLE}</h1>
-		<p class="tagline">Designed by kids. Engineered by adults.</p>
+		<h1><span class="sr-only">{SITE_TITLE}. </span>Designed by kids.<br /> <span class="accent">Engineered by adults.</span></h1>
 		<p class="lede">
-			Every Bioluma Labs game and app starts as an idea from our kids. A grown-up then does the
-			careful engineering to make it real, safe and fun to use.
+			We make games and apps that start with big ideas — sometimes from the smallest members of
+			the team.
 		</p>
+		<div class="ctas">
+			{featured.playUrl && (
+				<a class="button" href={featured.playUrl}>Play {featured.name} <span aria-hidden="true">→</span></a>
+			)}
+			<a class="ghost" href="#games">See all our games</a>
+		</div>
 	</section>
 
-	{PRODUCTS.map((p) => (
-		<section class="card release" aria-labelledby={p.id}>
-			<div class="release-head">
-				<img class="icon" src={p.icon} width="96" height="96" alt="" />
-				<div>
-					<p class="kicker">{p.kicker}</p>
-					<h2 id={p.id}>{p.name}</h2>
-				</div>
+	<section id="games" class="section" aria-labelledby="games-title">
+		<div class="section-head">
+			<p class="eyebrow">Play in your browser</p>
+			<h2 id="games-title">Our games</h2>
+		</div>
+		<GameCard product={featured} featured />
+		{others.length > 0 && (
+			<div class="grid">
+				{others.map((p) => <GameCard product={p} />)}
 			</div>
-			<p set:html={p.blurb} />
-			<p class="muted small">Plays in the browser on iPad, tablet and computer. No sign-up, no ads.</p>
-			<div class="actions">
-				<a class="button" href={p.playUrl}>Play {p.name} <span aria-hidden="true">→</span></a>
-				<ul class="stores" aria-label={`${p.name} in app stores`}>
-					{[['App Store', p.appStore], ['Google Play', p.googlePlay]].map(([store, url]) =>
-						url ? (
-							<li><a class="store" href={url}>{store}</a></li>
-						) : (
-							<li><span class="store soon">{store} · coming soon</span></li>
-						)
-					)}
-				</ul>
-			</div>
-		</section>
-	))}
+		)}
+	</section>
 
-	<section class="contact">
-		<h2>Say hello</h2>
+	<section class="section lab" aria-labelledby="lab-title">
+		<div class="bubbles" aria-hidden="true"><span></span><span></span><span></span></div>
+		<p class="eyebrow">The Lab</p>
+		<h2 id="lab-title">What's next?</h2>
+		<p>More games, apps and experiments are currently being cooked up in the lab.</p>
+	</section>
+
+	<section id="about" class="section about" aria-labelledby="about-title">
+		<p class="eyebrow">The studio</p>
+		<h2 id="about-title">About Bioluma Labs</h2>
+		<p class="big">Bioluma Labs is an independent game and app studio based in the UK.</p>
+		<p>
+			We make things because we think they're fun, interesting or useful. Some ideas come from
+			us. Some come from our kids. Some start as a ridiculous conversation at the dinner table.
+		</p>
+		<p>
+			Whatever the origin, we build them properly — and if they're good enough, we put them out
+			into the world.
+		</p>
+		<ul class="values" aria-label="What we aim for">
+			<li>Fun first</li>
+			<li>Accessible</li>
+			<li>Family-friendly</li>
+			<li>Thoughtfully designed</li>
+		</ul>
+	</section>
+
+	<section class="section contact" aria-labelledby="contact-title">
+		<h2 id="contact-title">Say hello</h2>
 		<p>
 			Questions, ideas or a bug to report? Email
 			<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
@@ -51,98 +74,144 @@ import { SITE_TITLE, SITE_DESCRIPTION, CONTACT_EMAIL, PRODUCTS } from '../consts
 
 <style>
 	.hero {
+		max-width: var(--measure);
+		margin: 0 auto;
 		text-align: center;
-		margin-bottom: clamp(2rem, 6vw, 3rem);
 	}
 	.logo {
 		display: block;
-		width: min(100%, 22rem);
+		width: min(70%, 15rem);
 		height: auto;
-		margin: 0 auto 0.5rem;
+		margin: 0 auto 1.25rem;
 	}
-	.tagline {
-		margin: 0 0 0.6rem;
+	h1 {
+		margin: 0 0 0.9rem;
+		font-size: clamp(1.6rem, 0.9rem + 3.6vw, 3.4rem);
+		text-wrap: balance;
+		line-height: 1.08;
+		letter-spacing: -0.025em;
+	}
+	.accent {
 		color: var(--glow);
-		font-size: clamp(1.1rem, 3vw, 1.35rem);
-		font-weight: 700;
-		letter-spacing: 0.02em;
+		text-shadow: 0 0 28px rgba(124, 245, 208, 0.35);
 	}
 	.lede {
-		max-width: 30rem;
-		margin: 0 auto;
+		max-width: 32rem;
+		margin: 0 auto 1.5rem;
 	}
-	.release + .release {
-		margin-top: clamp(1.5rem, 4vw, 2rem);
-	}
-	.release h2 {
-		margin: 0;
-	}
-	.release-head {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		margin-bottom: 1rem;
-	}
-	.icon {
-		flex: none;
-		width: clamp(4rem, 16vw, 6rem);
-		height: auto;
-		border-radius: 22%;
-		border: 1px solid var(--line);
-		box-shadow: 0 0 24px -6px rgba(94, 230, 190, 0.35);
-	}
-	.actions {
+	.ctas {
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: center;
 		align-items: center;
-		gap: 0.75rem 1rem;
+		gap: 0.5rem 1.25rem;
 	}
-	.stores {
+	.ghost {
+		display: inline-flex;
+		align-items: center;
+		min-height: 48px;
+		padding: 0 0.5rem;
+		font-weight: 600;
+	}
+
+	.section {
+		margin-top: clamp(3rem, 9vw, 5.5rem);
+	}
+	.section-head {
+		margin-bottom: 1.25rem;
+	}
+	.eyebrow {
+		margin: 0 0 0.3rem;
+		color: var(--glow);
+		font-size: 0.75rem;
+		font-weight: 700;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+	}
+	h2 {
+		margin: 0 0 0.6rem;
+		font-size: clamp(1.5rem, 1.2rem + 1.3vw, 2.1rem);
+		letter-spacing: -0.02em;
+	}
+	.grid {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 1.25rem;
+		margin-top: 1.25rem;
+	}
+
+	.lab {
+		position: relative;
+		overflow: hidden;
+		padding: clamp(1.5rem, 5vw, 2.5rem);
+		border: 1px dashed rgba(124, 245, 208, 0.28);
+		border-radius: 1.25rem;
+		background: radial-gradient(26rem 14rem at 100% 0%, rgba(240, 143, 187, 0.1), transparent 70%);
+	}
+	.lab p:last-child {
+		margin: 0;
+		max-width: 30rem;
+		color: var(--muted);
+	}
+	.bubbles {
+		display: none;
+	}
+	@media (min-width: 40rem) {
+		.lab {
+			padding-right: 8rem;
+		}
+		.bubbles {
+			display: block;
+		}
+	}
+	.bubbles span {
+		position: absolute;
+		border-radius: 50%;
+		border: 2px solid rgba(124, 245, 208, 0.35);
+		box-shadow: 0 0 14px rgba(124, 245, 208, 0.25);
+		animation: rise 7s ease-in-out infinite;
+	}
+	.bubbles span:nth-child(1) { width: 1.1rem; height: 1.1rem; right: 12%; bottom: 20%; }
+	.bubbles span:nth-child(2) { width: 0.6rem; height: 0.6rem; right: 20%; bottom: 45%; animation-delay: -2.5s; }
+	.bubbles span:nth-child(3) { width: 1.7rem; height: 1.7rem; right: 7%; bottom: 55%; animation-delay: -5s; border-color: rgba(240, 143, 187, 0.4); }
+	@keyframes rise {
+		0%, 100% { transform: translateY(0); }
+		50% { transform: translateY(-10px); }
+	}
+
+	.about {
+		max-width: var(--measure);
+	}
+	.about .big {
+		font-size: 1.15em;
+		font-weight: 650;
+	}
+	.about p {
+		color: var(--muted);
+	}
+	.about .big {
+		color: var(--ink);
+	}
+	.values {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.5rem;
-		margin: 0;
+		margin: 1.25rem 0 0;
 		padding: 0;
 		list-style: none;
 	}
-	.stores li {
+	.values li {
 		margin: 0;
-	}
-	.store {
-		display: inline-block;
-		padding: 0.45rem 0.9rem;
-		border: 1px solid var(--line);
+		padding: 0.35rem 0.85rem;
 		border-radius: 999px;
-		font-size: 0.9rem;
-		font-weight: 600;
+		background: rgba(240, 143, 187, 0.1);
+		border: 1px solid rgba(240, 143, 187, 0.25);
+		color: var(--pink);
+		font-size: 0.85rem;
+		font-weight: 650;
 	}
-	.store.soon {
-		color: var(--muted);
-		opacity: 0.75;
-	}
-	.kicker {
-		margin: 0 0 0.4rem;
-		color: var(--glow);
-		font-size: 0.8rem;
-		font-weight: 700;
-		letter-spacing: 0.14em;
-		text-transform: uppercase;
-	}
-	.small {
-		font-size: 0.92rem;
-	}
+
 	.contact {
 		text-align: center;
-	}
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
-		white-space: nowrap;
-		border: 0;
 	}
 </style>

@@ -1,0 +1,221 @@
+---
+import type { Product } from '../consts';
+
+interface Props {
+	product: Product;
+	featured?: boolean;
+}
+
+const { product: p, featured = false } = Astro.props;
+const stores = [
+	{ name: 'Google Play', url: p.googlePlay, get: 'Get it on Google Play' },
+	{ name: 'the App Store', url: p.appStore, get: 'Download on the App Store' },
+];
+---
+
+<article class:list={['game', { featured }]} aria-labelledby={p.id}>
+	<a class="art" href={p.playUrl || undefined} tabindex="-1" aria-hidden="true">
+		<img
+			src={p.art}
+			alt=""
+			width="1200"
+			height="675"
+			loading={featured ? 'eager' : 'lazy'}
+			decoding="async"
+		/>
+	</a>
+	<div class="body">
+		<div class="head">
+			<img class="icon" src={p.icon} width="64" height="64" alt="" loading="lazy" />
+			<div>
+				<p class="kind">{featured ? `Featured ${p.kind.toLowerCase()}` : p.kind}</p>
+				<h3 id={p.id}>{p.name}</h3>
+			</div>
+		</div>
+		<p class="tagline">{p.tagline}</p>
+		<p class="summary">{p.summary}</p>
+		{p.playUrl && (
+			<a class="button play" href={p.playUrl}>
+				Play now<span class="sr-only"> {p.name} in your browser</span> <span aria-hidden="true">→</span>
+			</a>
+		)}
+		<ul class="platforms" aria-label={`Where to play ${p.name}`}>
+			{p.playUrl && <li class="chip live"><span class="dot" aria-hidden="true"></span>Play in your browser</li>}
+			{stores.map((s) =>
+				s.url ? (
+					<li><a class="chip store" href={s.url}>{s.get}</a></li>
+				) : (
+					<li class="chip soon">Coming soon to {s.name}</li>
+				)
+			)}
+		</ul>
+	</div>
+</article>
+
+<style>
+	.game {
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+		background: var(--card);
+		border: 1px solid var(--line);
+		border-radius: 1.25rem;
+		box-shadow: 0 0 40px -14px rgba(94, 230, 190, 0.25);
+		transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+	}
+	.art {
+		display: block;
+		aspect-ratio: 16 / 9;
+		overflow: hidden;
+		background: var(--bg-2);
+	}
+	.art img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 0.35s ease;
+	}
+	@media (hover: hover) {
+		.game:hover {
+			transform: translateY(-3px);
+			border-color: rgba(124, 245, 208, 0.32);
+			box-shadow: 0 0 48px -10px rgba(94, 230, 190, 0.4);
+		}
+		.game:hover .art img {
+			transform: scale(1.03);
+		}
+	}
+	.body {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		flex: 1;
+		padding: 1.1rem 1.1rem 1.25rem;
+	}
+	.head {
+		display: flex;
+		align-items: center;
+		gap: 0.8rem;
+		margin-bottom: 0.7rem;
+	}
+	.icon {
+		flex: none;
+		width: 3.5rem;
+		height: 3.5rem;
+		margin-top: -2.4rem;
+		border-radius: 22%;
+		border: 2px solid var(--bg-2);
+		box-shadow: 0 6px 18px -6px rgba(0, 0, 0, 0.6), 0 0 18px -6px rgba(94, 230, 190, 0.5);
+	}
+	.kind {
+		margin: 0;
+		color: var(--glow);
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+	h3 {
+		margin: 0;
+		font-size: 1.3rem;
+		line-height: 1.2;
+	}
+	.tagline {
+		margin: 0 0 0.25rem;
+		font-weight: 650;
+		color: var(--ink);
+	}
+	.summary {
+		margin: 0 0 1.1rem;
+		color: var(--muted);
+		font-size: 0.95rem;
+		line-height: 1.55;
+	}
+	.play {
+		margin-bottom: 1rem;
+	}
+	.platforms {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		margin: auto 0 0;
+		padding: 0;
+		list-style: none;
+	}
+	.platforms li {
+		margin: 0;
+	}
+	.chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.3rem 0.7rem;
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		font-size: 0.78rem;
+		font-weight: 600;
+		line-height: 1.4;
+		white-space: nowrap;
+	}
+	.live {
+		color: var(--glow);
+		background: rgba(124, 245, 208, 0.07);
+	}
+	.dot {
+		width: 0.45rem;
+		height: 0.45rem;
+		border-radius: 50%;
+		background: var(--glow);
+		box-shadow: 0 0 8px var(--glow);
+	}
+	.soon {
+		color: var(--muted);
+		border-style: dashed;
+	}
+	.store {
+		color: var(--ink);
+		text-decoration: none;
+	}
+
+	/* On wider screens every card puts its artwork beside the text; the
+	   featured card just gets more of it. */
+	@media (min-width: 52rem) {
+		.game {
+			display: grid;
+			grid-template-columns: 1fr 1.15fr;
+		}
+		.art {
+			aspect-ratio: auto;
+			min-height: 100%;
+		}
+		.body {
+			justify-content: center;
+			padding: 1.5rem 1.75rem;
+		}
+		.icon {
+			margin-top: 0;
+		}
+	}
+
+	/* The featured card. */
+	.featured h3 {
+		font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.1rem);
+	}
+	.featured .tagline {
+		font-size: 1.1rem;
+		color: var(--pink);
+	}
+	@media (min-width: 52rem) {
+		.featured {
+			grid-template-columns: 1.35fr 1fr;
+		}
+		.featured .body {
+			padding: 2rem;
+		}
+		.featured .icon {
+			width: 4rem;
+			height: 4rem;
+		}
+	}
+</style>
