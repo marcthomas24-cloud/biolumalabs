@@ -1,6 +1,6 @@
 ---
 import Page from '../layouts/Page.astro';
-import { SITE_TITLE, SITE_DESCRIPTION, CONTACT_EMAIL, PLAY_URL, CAPY_URL } from '../consts';
+import { SITE_TITLE, SITE_DESCRIPTION, CONTACT_EMAIL, PRODUCTS } from '../consts';
 ---
 
 <Page title={`${SITE_TITLE} — designed by kids, engineered by adults`} description={SITE_DESCRIPTION}>
@@ -14,28 +14,31 @@ import { SITE_TITLE, SITE_DESCRIPTION, CONTACT_EMAIL, PLAY_URL, CAPY_URL } from 
 		</p>
 	</section>
 
-	<section class="card release" aria-labelledby="capy">
-		<p class="kicker">New release</p>
-		<h2 id="capy">Capy Sports Club</h2>
-		<p>
-			Join the most laid-back club in sport. Grab your team of capybaras and roll, bounce and
-			splash your way to the trophy, no rush, no stress, just lots of good-natured fun.
-		</p>
-		<p class="muted small">Plays in the browser on iPad, tablet and computer. No sign-up, no ads.</p>
-		<a class="button" href={CAPY_URL}>Play Capy Sports Club <span aria-hidden="true">→</span></a>
-	</section>
-
-	<section class="card release" aria-labelledby="new-release">
-		<p class="kicker">Out now</p>
-		<h2 id="new-release">Axolotl Odyssey</h2>
-		<p>
-			A swimming, digging, regrowing adventure starring an axolotl. Lose a leg to a crayfish and
-			grow it back, just like a real <em>Ambystoma mexicanum</em>, then follow the water all the
-			way to where it went.
-		</p>
-		<p class="muted small">Plays in the browser on iPad, tablet and computer. No sign-up, no ads.</p>
-		<a class="button" href={PLAY_URL}>Play Axolotl Odyssey <span aria-hidden="true">→</span></a>
-	</section>
+	{PRODUCTS.map((p) => (
+		<section class="card release" aria-labelledby={p.id}>
+			<div class="release-head">
+				<img class="icon" src={p.icon} width="96" height="96" alt="" />
+				<div>
+					<p class="kicker">{p.kicker}</p>
+					<h2 id={p.id}>{p.name}</h2>
+				</div>
+			</div>
+			<p set:html={p.blurb} />
+			<p class="muted small">Plays in the browser on iPad, tablet and computer. No sign-up, no ads.</p>
+			<div class="actions">
+				<a class="button" href={p.playUrl}>Play {p.name} <span aria-hidden="true">→</span></a>
+				<ul class="stores" aria-label={`${p.name} in app stores`}>
+					{[['App Store', p.appStore], ['Google Play', p.googlePlay]].map(([store, url]) =>
+						url ? (
+							<li><a class="store" href={url}>{store}</a></li>
+						) : (
+							<li><span class="store soon">{store} · coming soon</span></li>
+						)
+					)}
+				</ul>
+			</div>
+		</section>
+	))}
 
 	<section class="contact">
 		<h2>Say hello</h2>
@@ -72,7 +75,50 @@ import { SITE_TITLE, SITE_DESCRIPTION, CONTACT_EMAIL, PLAY_URL, CAPY_URL } from 
 		margin-top: clamp(1.5rem, 4vw, 2rem);
 	}
 	.release h2 {
-		margin-top: 0;
+		margin: 0;
+	}
+	.release-head {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-bottom: 1rem;
+	}
+	.icon {
+		flex: none;
+		width: clamp(4rem, 16vw, 6rem);
+		height: auto;
+		border-radius: 22%;
+		border: 1px solid var(--line);
+		box-shadow: 0 0 24px -6px rgba(94, 230, 190, 0.35);
+	}
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem 1rem;
+	}
+	.stores {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.stores li {
+		margin: 0;
+	}
+	.store {
+		display: inline-block;
+		padding: 0.45rem 0.9rem;
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		font-size: 0.9rem;
+		font-weight: 600;
+	}
+	.store.soon {
+		color: var(--muted);
+		opacity: 0.75;
 	}
 	.kicker {
 		margin: 0 0 0.4rem;
