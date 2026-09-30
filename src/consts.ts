@@ -2,7 +2,7 @@
 
 export const SITE_TITLE = "Bioluma Labs";
 export const SITE_DESCRIPTION =
-	"Small, glowing games and apps, dreamed up by kids and built by a grown-up.";
+	"An independent game and app studio. Designed by kids. Engineered by adults.";
 export const SITE_URL = "https://biolumalabs.com";
 // Bioluma Labs is a trading name. The legal owner of the site, the domain, the games and the apps is the company.
 export const COMPANY = "Diamond Hands Ltd";
@@ -10,28 +10,54 @@ export const COMPANY_DETAILS =
 	"Registered in England and Wales, company no. 16857970. Registered office: 20 Wenlock Road, London N1 7GU.";
 export const CONTACT_EMAIL = "support@biolumalabs.com";
 
-// The games and apps on the homepage, in the order they appear.
-// Store links: paste the App Store / Google Play URL once a listing is live.
-// Until then, leave it as "" and the page shows "coming soon" for that store.
-export const PRODUCTS = [
+// The games and apps on the homepage, in the order they appear. The first
+// entry with `featured: true` gets the large card at the top of "Our games".
+// To add a game or app, add an entry here and put its icon in public/icons/
+// and its 16:9 artwork in public/art/.
+//
+// playUrl: the in-browser version, or "" if there isn't one.
+// appStore / googlePlay: paste the store listing URL once it is live. Until
+// then leave it as "" and the card says "Coming soon" for that store.
+export type Product = {
+	id: string;
+	name: string;
+	kind: "Game" | "App";
+	featured?: boolean;
+	tagline: string;
+	summary: string;
+	icon: string;
+	art: string;
+	artAlt: string;
+	playUrl: string;
+	appStore: string;
+	googlePlay: string;
+};
+
+export const PRODUCTS: Product[] = [
 	{
-		id: "axolotl",
+		id: "axolotl-odyssey",
 		name: "Axolotl Odyssey",
-		kicker: "Out now",
+		kind: "Game",
+		featured: true,
+		tagline: "The water is disappearing.",
+		summary:
+			"An underwater adventure about an axolotl trying to discover where the water has gone.",
 		icon: "/icons/axolotl-odyssey.png",
-		blurb:
-			"A swimming, digging, regrowing adventure starring an axolotl. Lose a leg to a crayfish and grow it back, just like a real <em>Ambystoma mexicanum</em>, then follow the water all the way to where it went.",
+		art: "/art/axolotl-odyssey.webp",
+		artAlt: "A pool full of pink, gold and dark axolotls swimming under lily pads in Axolotl Odyssey",
 		playUrl: "/play/",
 		appStore: "",
 		googlePlay: "",
 	},
 	{
-		id: "capy",
+		id: "capy-sports-club",
 		name: "Capy Sports Club",
-		kicker: "New release",
+		kind: "Game",
+		tagline: "10 sports. 1 Capy. 1 champion.",
+		summary: "Quick arcade sports starring Capy the capybara.",
 		icon: "/icons/capy-sports-club.png",
-		blurb:
-			"Join the most laid-back club in sport. Grab your team of capybaras and roll, bounce and splash your way to the trophy, no rush, no stress, just lots of good-natured fun.",
+		art: "/art/capy-sports-club.webp",
+		artAlt: "The Capy Sports Club clubhouse under a blue sky, with a Pick your sport sign",
 		playUrl: "/capy-sports-club/",
 		appStore: "",
 		googlePlay: "",
