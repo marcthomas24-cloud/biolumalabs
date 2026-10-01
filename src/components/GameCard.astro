@@ -7,7 +7,7 @@ interface Props {
 }
 
 const { product: p, featured = false } = Astro.props;
-const stores = [
+const stores = p.webOnly ? [] : [
 	{ name: 'Google Play', url: p.googlePlay, get: 'Get it on Google Play' },
 	{ name: 'the App Store', url: p.appStore, get: 'Download on the App Store' },
 ];

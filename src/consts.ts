@@ -18,6 +18,7 @@ export const CONTACT_EMAIL = "support@biolumalabs.com";
 // playUrl: the in-browser version, or "" if there isn't one.
 // appStore / googlePlay: paste the store listing URL once it is live. Until
 // then leave it as "" and the card says "Coming soon" for that store.
+// webOnly: true for browser-only games, so the card doesn't promise store versions.
 export type Product = {
 	id: string;
 	name: string;
@@ -31,6 +32,7 @@ export type Product = {
 	playUrl: string;
 	appStore: string;
 	googlePlay: string;
+	webOnly?: boolean;
 };
 
 export const PRODUCTS: Product[] = [
@@ -61,5 +63,20 @@ export const PRODUCTS: Product[] = [
 		playUrl: "/capy-sports-club/",
 		appStore: "",
 		googlePlay: "",
+	},
+	{
+		id: "axolotl-chase",
+		name: "Axolotl Chase",
+		kind: "Game",
+		tagline: "A tiny axolotl. A hungry tank. A LOT of fish.",
+		summary:
+			"Gobble shrimp, grab a bloodworm and turn the predators into dinner. A new daily challenge every day.",
+		icon: "/icons/axolotl-chase.png",
+		art: "/art/axolotl-chase.webp",
+		artAlt: "A pink axolotl chasing two frightened fish through clear blue-green water, past a trail of golden shrimp",
+		playUrl: "/axolotl-chase/",
+		appStore: "",
+		googlePlay: "",
+		webOnly: true,
 	},
 ];
