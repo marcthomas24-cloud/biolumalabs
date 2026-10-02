@@ -59,7 +59,7 @@ export const PRODUCTS: Product[] = [
 		summary: "Quick arcade sports starring Capy the capybara.",
 		icon: "/icons/capy-sports-club.png",
 		art: "/art/capy-sports-club.webp",
-		artAlt: "The Capy Sports Club clubhouse under a blue sky, with a Pick your sport sign",
+		artAlt: "Two Capy Sports Club screens side by side: Capy celebrating the Gold Cup with all 10 sports won, and Capy lining up a penalty in the football stadium",
 		playUrl: "/capy-sports-club/",
 		appStore: "",
 		googlePlay: "",
