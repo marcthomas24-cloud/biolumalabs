@@ -26,6 +26,11 @@
 <meta name="twitter:image" content="https://biolumalabs.com/axolotl-chase/og-image.jpg">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- added to a home screen, the game opens without browser chrome -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <!-- fonts are served with the game (SIL Open Font License, see fonts/), no third-party requests -->
 <link rel="preload" href="fonts/lilita-one-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -62,22 +67,29 @@ body{
     var(--abyss);
   color:var(--ink);
   font-family:"Fredoka", ui-rounded, "Segoe UI", system-ui, sans-serif;
-  display:flex; align-items:center; justify-content:center;
-  padding:max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
   overflow:hidden;
   -webkit-font-smoothing:antialiased;
   -webkit-tap-highlight-color:transparent;
 }
+/* Layout follows the shape of the screen (fitTank sets body.wide / body.tall,
+   --tile, --bw and --bh). The tank takes the biggest whole-pixel tile size
+   that fits; the HUD hugs its edges.
+   Portrait: title and HUD strip on top, tank edge to edge, controls below.
+   Landscape: HUD panel on the left, tank centred at ~94% of the height,
+   controls on the right. */
 .shell{
-  width:100%; max-width:690px; height:100%;
-  display:flex; flex-direction:column; gap:10px;
+  width:100%; height:100%;
+  display:flex; flex-direction:column; gap:8px;
   align-items:center; justify-content:center;
+  padding:max(8px, env(safe-area-inset-top)) max(4px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(4px, env(safe-area-inset-left));
 }
-header{text-align:center; line-height:1; flex:0 0 auto}
+.panel{flex:0 0 auto; width:var(--bw, 100%); display:flex; flex-direction:column; gap:6px}
+header{line-height:1; flex:0 0 auto; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:4px 8px}
+header .sub{flex:1 0 100%; text-align:center}
 h1{
   font-family:"Lilita One", "Fredoka", sans-serif; font-weight:400;
-  font-size:clamp(26px,7vw,40px);
-  letter-spacing:.04em; margin:0 0 6px 1px;
+  font-size:clamp(20px,6vw,40px);
+  letter-spacing:.04em; margin:0 0 0 1px;
   color:#ff8fcb;
   -webkit-text-stroke:1.5px #6a1745; paint-order:stroke fill;
   text-shadow:0 3px 0 #6a1745, 0 0 22px rgba(255,79,160,.55);
@@ -95,14 +107,37 @@ h1{
 .stat .v{font-family:"Fredoka", sans-serif; font-weight:700; font-size:19px; color:#ffffff; letter-spacing:.01em}
 .stat.best .v{color:var(--glow)}
 .lives{display:flex; gap:5px; align-items:center; min-height:18px}
-.lives svg{filter:drop-shadow(0 0 6px rgba(255,79,139,.6))}
+.lives svg{filter:drop-shadow(0 0 6px rgba(255,79,139,.6)); width:clamp(17px, calc(var(--tile, 16px)*0.9), 28px); height:auto}
 
-.stage{
-  flex:1 1 0; min-height:0; width:100%;
-  display:flex; align-items:center; justify-content:center;
+.stage{flex:0 0 auto; display:flex; align-items:center; justify-content:center}
+.tankwrap{position:relative; display:flex}
+
+.wide{--side:clamp(190px, 22vh, 260px)}
+.wide .shell{
+  display:grid; grid-template-columns:var(--side) auto var(--side); grid-template-rows:1fr auto;
+  grid-template-areas:"panel stage ." "controls stage keys";
+  justify-content:center; align-content:center; column-gap:clamp(10px, 2.2vh, 28px); row-gap:8px;
+  padding:max(3vh, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(3vh, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
 }
-/* the tank is sized in JS (fitTank) so it always keeps its 21:23 shape */
-.tankwrap{position:relative; display:flex; max-height:100%; max-width:100%}
+.wide .panel{grid-area:panel; width:auto; align-self:start; gap:clamp(10px, 3vh, 30px); padding-top:4px}
+.wide header{flex-direction:column; align-items:flex-start; gap:clamp(8px, 2vh, 18px)}
+.wide .ibtn{width:clamp(44px, 5.4vh, 56px); height:clamp(44px, 5.4vh, 56px)}
+.wide .ibtn svg{width:45%; height:45%}
+.wide h1{font-size:clamp(18px, 3.6vh, 36px); letter-spacing:.06em; margin:0; line-height:1.05}
+.wide .sub{display:none}
+.wide .hud{flex-direction:column; align-items:flex-start; justify-content:flex-start; gap:clamp(8px, 2.4vh, 24px); padding:0}
+.wide .stat .k{font-size:clamp(10px, 1.4vh, 14px)}
+.wide .stat .v{font-size:clamp(16px, 3.6vh, 36px)}
+.wide .lives svg{width:clamp(17px, 2.8vh, 30px); height:auto}
+.wide .stage{grid-area:stage; grid-row:1 / span 2}
+/* landscape with the HUD on top (the wide tank): one slim row, title, stats, buttons */
+.strip .shell{padding-top:max(1.5vh, env(safe-area-inset-top)); padding-bottom:max(1.5vh, env(safe-area-inset-bottom)); gap:1vh}
+.strip .panel{flex-direction:row; align-items:center; gap:clamp(12px, 2vw, 32px)}
+.strip header{display:contents}
+.strip h1{order:0; flex:0 0 auto; font-size:clamp(18px, 3.4vh, 32px)}
+.strip .sub{display:none}
+.strip .hud{order:1; flex:1 1 auto; width:auto; align-items:center; justify-content:space-evenly}
+.strip .hudbtns{order:2}
 canvas{
   display:block; width:100%; height:100%; border-radius:14px;
   background:#03121c;
@@ -114,149 +149,176 @@ canvas{
 }
 .overlay{
   position:absolute; inset:0; display:flex; flex-direction:column;
-  align-items:center; justify-content:safe center; gap:8px; overflow-y:auto;
-  background:rgba(3,16,26,.72); backdrop-filter:blur(2px);
-  border-radius:14px; text-align:center; padding:20px;
+  align-items:center; justify-content:safe center; gap:calc(8px*var(--oz)); overflow-y:auto;
+  background:rgba(3,16,26,.72); backdrop-filter:blur(calc(2px*var(--oz)));
+  border-radius:14px; text-align:center; padding:calc(20px*var(--oz));
   opacity:0; pointer-events:none; transition:opacity .18s ease;
+  /* menus scale with the tank: --oz (set by fitTank) is 1 up to a ~600x700 tank
+     and grows with it. The menu box is a size container for the layouts below. */
+  --oz:1; container:ov / size;
 }
+.ovin{display:flex; flex-direction:column; align-items:center; gap:inherit; width:100%; max-height:none}
+/* landscape-shaped menus (phone landscape, wide windows): the title screen
+   goes into two columns, the swim button and menu on the left, today's
+   challenge on the right, so nothing has to scroll */
+@container ov (min-aspect-ratio: 5/4){
+  .overlay.is-title .ovin{display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); grid-template-areas:"extra after" "actions after";
+    align-items:center; align-content:center; column-gap:calc(18px*var(--oz)); row-gap:calc(8px*var(--oz)); max-width:calc(860px*var(--oz))}
+  .overlay.is-title #ov-extra{grid-area:extra; align-self:end}
+  .overlay.is-title #ov-actions{grid-area:actions; align-self:start}
+  .overlay.is-title #ov-after{grid-area:after}
+  .overlay.is-title #ov-after .daily{margin-top:0}
+  .overlay.is-title #ov-title, .overlay.is-title #roster, .overlay.is-title #ov-body, .overlay.is-title #ov-toast{display:none}
+  .overlay.is-title .ovin .hero{display:flex}
+  .overlay.is-title .ovin .dnote{display:block}
+}
+/* very wide, short menus (phone landscape): the collection in one row */
+@container ov (min-aspect-ratio: 2/1){
+  .ovin .axogrid{grid-template-columns:repeat(8, minmax(0, 1fr)); max-width:none; gap:calc(6px*var(--oz))}
+  .ovin .axocard canvas{width:84px}
+}
+/* touch: every menu button is at least 44px tall */
+body[data-input="touch"] .overlay .cta, body[data-input="touch"] .tabs button, body[data-input="touch"] .chips button{min-height:44px}
+body[data-input="touch"] .namebox input{min-height:44px}
 .overlay.on{opacity:1; pointer-events:auto}
 .overlay h2{
-  font-family:"Lilita One", "Fredoka", sans-serif; font-weight:400; font-size:clamp(22px,6vw,30px);
+  font-family:"Lilita One", "Fredoka", sans-serif; font-weight:400; font-size:calc(28px*var(--oz));
   margin:0; letter-spacing:.04em; color:#ff8fcb;
-  text-shadow:0 0 16px rgba(255,79,139,.5);
+  text-shadow:0 0 calc(16px*var(--oz)) rgba(255,79,139,.5);
 }
-.overlay p{margin:0; font-size:13px; font-weight:300; color:var(--ink-dim); max-width:32ch; line-height:1.5}
-.roster{list-style:none; margin:2px 0 4px; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:6px 18px; text-align:left}
-.roster li{font-size:12px; line-height:1.25; color:var(--ink-dim)}
-.roster b{display:block; font-family:"Fredoka",sans-serif; font-weight:700; font-size:13px; letter-spacing:.06em; text-transform:uppercase}
+.overlay p{margin:0; font-size:calc(13px*var(--oz)); font-weight:300; color:var(--ink-dim); max-width:32ch; line-height:1.5}
+.roster{list-style:none; margin:calc(2px*var(--oz)) 0 calc(4px*var(--oz)); padding:0; display:grid; grid-template-columns:1fr 1fr; gap:calc(6px*var(--oz)) calc(18px*var(--oz)); text-align:left}
+.roster li{font-size:calc(12px*var(--oz)); line-height:1.25; color:var(--ink-dim)}
+.roster b{display:block; font-family:"Fredoka",sans-serif; font-weight:700; font-size:calc(13px*var(--oz)); letter-spacing:.06em; text-transform:uppercase}
 .roster:empty{display:none}
 .overlay .cta{
-  margin-top:6px; font-family:"Fredoka",sans-serif; font-weight:700; font-size:13px; letter-spacing:.08em; text-transform:uppercase;
+  margin-top:calc(6px*var(--oz)); font-family:"Fredoka",sans-serif; font-weight:700; font-size:calc(13px*var(--oz)); letter-spacing:.08em; text-transform:uppercase;
   background:transparent; color:var(--glow); border:1px solid rgba(34,199,222,.5);
-  padding:10px 18px; border-radius:999px; cursor:pointer;
+  padding:calc(10px*var(--oz)) calc(18px*var(--oz)); border-radius:calc(999px*var(--oz)); cursor:pointer;
 }
 .overlay .cta:hover{background:rgba(34,199,222,.12)}
-.overlay .cta.primary{background:linear-gradient(#cf3d85,#ad286a); color:#ffffff; border-color:#ffb3da; text-shadow:0 1px 2px rgba(80,0,40,.6);
-  box-shadow:0 3px 0 #7a1c4e, 0 0 18px rgba(255,79,160,.35)}
+.overlay .cta.primary{background:linear-gradient(#cf3d85,#ad286a); color:#ffffff; border-color:#ffb3da; text-shadow:0 1px calc(2px*var(--oz)) rgba(80,0,40,.6);
+  box-shadow:0 calc(3px*var(--oz)) 0 #7a1c4e, 0 0 calc(18px*var(--oz)) rgba(255,79,160,.35)}
 .overlay .cta.primary:hover{background:linear-gradient(#d84a8e,#b83073)}
-.overlay .cta small{display:block; font-family:"Fredoka",sans-serif; font-size:11px; letter-spacing:.02em; color:var(--ink-dim); margin-top:3px; text-transform:none}
-.actions{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:2px}
+.overlay .cta small{display:block; font-family:"Fredoka",sans-serif; font-size:calc(11px*var(--oz)); letter-spacing:.02em; color:var(--ink-dim); margin-top:calc(3px*var(--oz)); text-transform:none}
+.actions{display:flex; flex-wrap:wrap; gap:calc(8px*var(--oz)); justify-content:center; margin-top:calc(2px*var(--oz))}
 .actions .cta{margin-top:0}
-.toast{min-height:1em; font-size:12px !important; color:var(--glow) !important}
+.toast{min-height:1em; font-size:calc(12px*var(--oz)) !important; color:var(--glow) !important}
 .toast:empty{display:none}
 #ov-extra:empty, #ov-after:empty{display:none}
-.tabs{display:flex; gap:6px; justify-content:center; margin-bottom:6px}
-.tabs button{font-family:"Fredoka",sans-serif; font-weight:600; font-size:12px; letter-spacing:.04em; padding:6px 10px; border-radius:999px;
+.tabs{display:flex; gap:calc(6px*var(--oz)); justify-content:center; margin-bottom:calc(6px*var(--oz))}
+.tabs button{font-family:"Fredoka",sans-serif; font-weight:600; font-size:calc(12px*var(--oz)); letter-spacing:.04em; padding:calc(6px*var(--oz)) calc(10px*var(--oz)); border-radius:calc(999px*var(--oz));
   background:transparent; color:var(--ink-dim); border:1px solid rgba(34,199,222,.25); cursor:pointer}
 .tabs button[aria-selected="true"]{color:var(--ink); background:rgba(34,199,222,.16); border-color:rgba(34,199,222,.55)}
-table.scores{border-collapse:collapse; font-size:13px; min-width:250px; color:var(--ink)}
-table.scores td{padding:3px 8px; text-align:left; border-bottom:1px solid rgba(34,199,222,.1)}
+table.scores{border-collapse:collapse; font-size:calc(13px*var(--oz)); min-width:calc(250px*var(--oz)); color:var(--ink)}
+table.scores td{padding:calc(3px*var(--oz)) calc(8px*var(--oz)); text-align:left; border-bottom:1px solid rgba(34,199,222,.1)}
 table.scores td.n{color:var(--ink-dim); width:2ch; text-align:right}
-table.scores td.s{font-family:"Fredoka",sans-serif; font-weight:700; font-size:14px; text-align:right}
-table.scores td.t{color:var(--ink-dim); font-size:11px}
+table.scores td.s{font-family:"Fredoka",sans-serif; font-weight:700; font-size:calc(14px*var(--oz)); text-align:right}
+table.scores td.t{color:var(--ink-dim); font-size:calc(11px*var(--oz))}
 table.scores tr.me td{color:var(--axo); background:rgba(255,79,139,.1)}
-.empty{font-size:12px; color:var(--ink-dim); margin:8px 0}
-.namebox{display:flex; gap:8px; justify-content:center; align-items:center}
-.namebox input{font:500 15px "Fredoka",sans-serif; color:var(--ink); background:rgba(3,16,26,.8); width:12ch;
-  border:1px solid rgba(255,154,196,.55); border-radius:10px; padding:8px 10px; text-align:center}
-.namebox input:focus{outline:2px solid var(--axo); outline-offset:2px}
-.rule{font-size:12px; color:var(--shrimp); margin:0}
-.chips{display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin:0 0 4px}
-.chips button{font:600 12px "Fredoka",sans-serif; padding:5px 11px; border-radius:999px; cursor:pointer;
+.empty{font-size:calc(12px*var(--oz)); color:var(--ink-dim); margin:calc(8px*var(--oz)) 0}
+.namebox{display:flex; gap:calc(8px*var(--oz)); justify-content:center; align-items:center}
+.namebox input{font:500 calc(15px*var(--oz)) "Fredoka",sans-serif; color:var(--ink); background:rgba(3,16,26,.8); width:12ch;
+  border:1px solid rgba(255,154,196,.55); border-radius:calc(10px*var(--oz)); padding:calc(8px*var(--oz)) calc(10px*var(--oz)); text-align:center}
+.namebox input:focus{outline:calc(2px*var(--oz)) solid var(--axo); outline-offset:calc(2px*var(--oz))}
+.rule{font-size:calc(12px*var(--oz)); color:var(--shrimp); margin:0}
+.chips{display:flex; gap:calc(6px*var(--oz)); justify-content:center; flex-wrap:wrap; margin:0 0 calc(4px*var(--oz))}
+.chips button{font:600 calc(12px*var(--oz)) "Fredoka",sans-serif; padding:calc(5px*var(--oz)) calc(11px*var(--oz)); border-radius:calc(999px*var(--oz)); cursor:pointer;
   background:transparent; color:var(--ink-dim); border:1px solid rgba(34,199,222,.25)}
 .chips button[aria-checked="true"]{color:#3a2100; background:#ffd34d; border-color:#ffe68f}
-table.statgrid{border-collapse:collapse; font-size:13px; min-width:270px; color:var(--ink)}
-table.statgrid th, table.statgrid td{padding:4px 8px; border-bottom:1px solid rgba(34,199,222,.1)}
+table.statgrid{border-collapse:collapse; font-size:calc(13px*var(--oz)); min-width:calc(270px*var(--oz)); color:var(--ink)}
+table.statgrid th, table.statgrid td{padding:calc(4px*var(--oz)) calc(8px*var(--oz)); border-bottom:1px solid rgba(34,199,222,.1)}
 table.statgrid tbody th{text-align:left; font-weight:400; color:var(--ink-dim)}
-table.statgrid thead th{font-size:11.5px; letter-spacing:.12em; text-transform:uppercase; color:#ff8fcb; text-align:right}
+table.statgrid thead th{font-size:calc(11.5px*var(--oz)); letter-spacing:.12em; text-transform:uppercase; color:#ff8fcb; text-align:right}
 table.statgrid td{text-align:right; font-weight:700}
-.axogrid{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px; width:100%; max-width:470px}
-.axocard{display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 4px 8px; border-radius:14px; cursor:pointer;
+.axogrid{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:calc(8px*var(--oz)); width:100%; max-width:calc(470px*var(--oz))}
+.axocard{display:flex; flex-direction:column; align-items:center; gap:calc(2px*var(--oz)); padding:calc(6px*var(--oz)) calc(4px*var(--oz)) calc(8px*var(--oz)); border-radius:calc(14px*var(--oz)); cursor:pointer;
   background:rgba(9,44,60,.55); border:1px solid rgba(34,199,222,.22); color:var(--ink); font-family:"Fredoka",sans-serif}
-.axocard canvas{width:96px; max-width:100%; height:auto}
-.axocard b{font-weight:700; font-size:13px; letter-spacing:.02em}
-.axocard span{font-size:11.5px; line-height:1.25; color:var(--ink-dim)}
-.axocard.sel{border-color:#ff8fcb; box-shadow:0 0 0 2px rgba(255,143,203,.5), 0 0 16px rgba(255,79,160,.35)}
+.axocard canvas{width:calc(96px*var(--oz)); max-width:100%; height:auto}
+.axocard b{font-weight:700; font-size:calc(13px*var(--oz)); letter-spacing:.02em}
+.axocard span{font-size:calc(11.5px*var(--oz)); line-height:1.25; color:var(--ink-dim)}
+.axocard.sel{border-color:#ff8fcb; box-shadow:0 0 0 calc(2px*var(--oz)) rgba(255,143,203,.5), 0 0 calc(16px*var(--oz)) rgba(255,79,160,.35)}
 .axocard.sel span{color:#ff8fcb}
 .axocard.locked{cursor:default; opacity:.85}
-.unlocked{font-size:13px; color:#ffd34d; margin:0}
+.unlocked{font-size:calc(13px*var(--oz)); color:#ffd34d; margin:0}
 .overlay h2:empty{display:none}
 .tagline{display:none}
-@media (min-height:900px){ .overlay.is-title .tagline{display:block; font-size:14px; color:var(--ink); margin:-2px 0 2px} }
-.overlay.is-title .actions{gap:6px}
-.overlay .cta.big{font-family:"Lilita One","Fredoka",sans-serif; font-weight:400; font-size:28px; letter-spacing:.08em;
-  padding:10px 0 12px; flex:0 0 260px; margin:0 calc(50% - 130px)}
-.overlay .cta.small{padding:7px 12px; font-size:12px}
-.overlay .cta.small small{display:inline; margin:0 0 0 4px}
+@media (min-height:900px){ .overlay.is-title .tagline{display:block; font-size:calc(14px*var(--oz)); color:var(--ink); margin:-2px 0 calc(2px*var(--oz))} }
+.overlay.is-title .actions{gap:calc(6px*var(--oz))}
+.overlay .cta.big{font-family:"Lilita One","Fredoka",sans-serif; font-weight:400; font-size:calc(28px*var(--oz)); letter-spacing:.08em;
+  padding:calc(10px*var(--oz)) 0 calc(12px*var(--oz)); flex:0 0 calc(260px*var(--oz)); margin:0 calc(50% - calc(130px*var(--oz)))}
+.overlay .cta.small{padding:calc(7px*var(--oz)) calc(12px*var(--oz)); font-size:calc(12px*var(--oz))}
+.overlay .cta.small small{display:inline; margin:0 0 0 calc(4px*var(--oz))}
 canvas.art{background:transparent; box-shadow:none; border-radius:0}
 .hero{display:flex; justify-content:center; margin:-4px 0 -6px}
-.hero canvas{width:240px; height:96px}
-.steps{list-style:none; margin:4px 0 2px; padding:0; display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; width:100%; max-width:470px}
-.steps li{display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px 6px; border-radius:14px; text-align:center;
+.hero canvas{width:calc(240px*var(--oz)); height:calc(96px*var(--oz))}
+.steps{list-style:none; margin:calc(4px*var(--oz)) 0 calc(2px*var(--oz)); padding:0; display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:calc(8px*var(--oz)); width:100%; max-width:calc(470px*var(--oz))}
+.steps li{display:flex; flex-direction:column; align-items:center; gap:calc(2px*var(--oz)); padding:calc(8px*var(--oz)) calc(6px*var(--oz)); border-radius:calc(14px*var(--oz)); text-align:center;
   background:rgba(9,44,60,.6); border:1px solid rgba(34,199,222,.25)}
-.steps b{font-family:"Lilita One","Fredoka",sans-serif; font-weight:400; font-size:15px; line-height:1.1; color:#ffffff; letter-spacing:.02em; text-transform:uppercase}
-.steps canvas{width:120px; max-width:100%; height:auto}
-.steps small{font-size:11.5px; line-height:1.25; color:var(--ink-dim)}
-.chain{display:flex; align-items:center; justify-content:center; gap:3px; flex-wrap:nowrap; margin:2px 0; max-width:100%}
-.chain span{display:flex; flex-direction:column; align-items:center; font-family:"Lilita One","Fredoka",sans-serif; font-size:16px; color:#fff;
-  padding:3px 7px; border-radius:11px; background:rgba(3,16,26,.6); border:1px solid rgba(255,255,255,.12); min-width:0}
-.chain em{font-style:normal; font-size:12px; background:linear-gradient(var(--a), var(--b)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.steps b{font-family:"Lilita One","Fredoka",sans-serif; font-weight:400; font-size:calc(15px*var(--oz)); line-height:1.1; color:#ffffff; letter-spacing:.02em; text-transform:uppercase}
+.steps canvas{width:calc(120px*var(--oz)); max-width:100%; height:auto}
+.steps small{font-size:calc(11.5px*var(--oz)); line-height:1.25; color:var(--ink-dim)}
+.chain{display:flex; align-items:center; justify-content:center; gap:calc(3px*var(--oz)); flex-wrap:nowrap; margin:calc(2px*var(--oz)) 0; max-width:100%}
+.chain span{display:flex; flex-direction:column; align-items:center; font-family:"Lilita One","Fredoka",sans-serif; font-size:calc(16px*var(--oz)); color:#fff;
+  padding:calc(3px*var(--oz)) calc(7px*var(--oz)); border-radius:calc(11px*var(--oz)); background:rgba(3,16,26,.6); border:1px solid rgba(255,255,255,.12); min-width:0}
+.chain em{font-style:normal; font-size:calc(12px*var(--oz)); background:linear-gradient(var(--a), var(--b)); -webkit-background-clip:text; background-clip:text; color:transparent}
 .chain i{font-style:normal; color:var(--ink-dim)}
-.tip{font-size:12px !important; color:var(--ink) !important; max-width:44ch !important}
-.overlay.is-howto{gap:5px; padding-top:10px; padding-bottom:10px}
-.overlay.is-howto h2{font-size:24px}
+.tip{font-size:calc(12px*var(--oz)) !important; color:var(--ink) !important; max-width:44ch !important}
+.overlay.is-howto{gap:calc(5px*var(--oz)); padding-top:calc(10px*var(--oz)); padding-bottom:calc(10px*var(--oz))}
+.overlay.is-howto h2{font-size:calc(24px*var(--oz))}
 @media (max-width:480px){
-  .steps{gap:5px} .steps li{padding:6px 3px} .steps b{font-size:12.5px} .steps small{font-size:11px}
-  .chain span{font-size:13px; padding:2px 5px} .chain em{font-size:9.5px} .chain i{font-size:11px}
-  .overlay.is-howto h2{font-size:20px} .tip{font-size:11px !important}
-  .overlay .cta.big{font-size:24px; padding:8px 0 10px; flex-basis:220px; margin:0 calc(50% - 110px)}
-  .hero canvas{width:200px; height:80px}
+  .steps{gap:calc(5px*var(--oz))} .steps li{padding:calc(6px*var(--oz)) calc(3px*var(--oz))} .steps b{font-size:calc(12.5px*var(--oz))} .steps small{font-size:calc(11px*var(--oz))}
+  .chain span{font-size:calc(13px*var(--oz)); padding:calc(2px*var(--oz)) calc(5px*var(--oz))} .chain em{font-size:calc(9.5px*var(--oz))} .chain i{font-size:calc(11px*var(--oz))}
+  .overlay.is-howto h2{font-size:calc(20px*var(--oz))} .tip{font-size:calc(11px*var(--oz)) !important}
+  .overlay .cta.big{font-size:calc(24px*var(--oz)); padding:calc(8px*var(--oz)) 0 calc(10px*var(--oz)); flex-basis:calc(220px*var(--oz)); margin:0 calc(50% - calc(110px*var(--oz)))}
+  .hero canvas{width:calc(200px*var(--oz)); height:calc(80px*var(--oz))}
 }
-.daily{width:100%; max-width:400px; margin-top:6px; padding:12px 14px; border-radius:16px; text-align:left;
+.daily{width:100%; max-width:calc(400px*var(--oz)); margin-top:calc(6px*var(--oz)); padding:calc(12px*var(--oz)) calc(14px*var(--oz)); border-radius:calc(16px*var(--oz)); text-align:left;
   background:linear-gradient(160deg, rgba(255,143,203,.16), rgba(34,120,170,.18)); border:1px solid rgba(255,179,218,.45);
-  box-shadow:0 0 24px rgba(255,79,160,.15)}
+  box-shadow:0 0 calc(24px*var(--oz)) rgba(255,79,160,.15)}
 .dhead{display:flex; justify-content:space-between; align-items:baseline}
-.dtag{font-family:"Lilita One","Fredoka",sans-serif; font-size:18px; letter-spacing:.04em; color:#ff8fcb; text-transform:uppercase}
-.ddate{font-size:12px; color:var(--ink-dim)}
-.drule{display:flex; gap:10px; align-items:center; margin:8px 0}
-.drule b{display:block; font-family:"Lilita One","Fredoka",sans-serif; font-weight:400; font-size:19px; color:#ffd34d; letter-spacing:.02em}
-.drule span{display:block; font-size:13px; line-height:1.35; color:var(--ink)}
-.drule.small b{font-size:15px}
-.drule.small span{font-size:12px}
-.ricon{flex:0 0 auto; width:34px; height:34px; padding:6px; border-radius:10px; color:#ffd34d; background:rgba(255,211,77,.14)}
-.dstats{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin:6px 0 8px}
-.dstats div{background:rgba(3,16,26,.45); border-radius:10px; padding:6px 8px}
-.dstats dt{font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-dim)}
-.dstats dd{margin:2px 0 0; font-weight:700; font-size:16px; color:#ffffff}
-.overlay .daily .cta.dplay{width:100%; margin-top:2px; background:linear-gradient(#ffe07a,#ffad33); color:#3a2100; border-color:#fff0b3;
-  box-shadow:0 3px 0 #a8641a, 0 0 18px rgba(255,190,60,.3)}
+.dtag{font-family:"Lilita One","Fredoka",sans-serif; font-size:calc(18px*var(--oz)); letter-spacing:.04em; color:#ff8fcb; text-transform:uppercase}
+.ddate{font-size:calc(12px*var(--oz)); color:var(--ink-dim)}
+.drule{display:flex; gap:calc(10px*var(--oz)); align-items:center; margin:calc(8px*var(--oz)) 0}
+.drule b{display:block; font-family:"Lilita One","Fredoka",sans-serif; font-weight:400; font-size:calc(19px*var(--oz)); color:#ffd34d; letter-spacing:.02em}
+.drule span{display:block; font-size:calc(13px*var(--oz)); line-height:1.35; color:var(--ink)}
+.drule.small b{font-size:calc(15px*var(--oz))}
+.drule.small span{font-size:calc(12px*var(--oz))}
+.ricon{flex:0 0 auto; width:calc(34px*var(--oz)); height:calc(34px*var(--oz)); padding:calc(6px*var(--oz)); border-radius:calc(10px*var(--oz)); color:#ffd34d; background:rgba(255,211,77,.14)}
+.dstats{display:grid; grid-template-columns:repeat(3,1fr); gap:calc(6px*var(--oz)); margin:calc(6px*var(--oz)) 0 calc(8px*var(--oz))}
+.dstats div{background:rgba(3,16,26,.45); border-radius:calc(10px*var(--oz)); padding:calc(6px*var(--oz)) calc(8px*var(--oz))}
+.dstats dt{font-size:calc(11px*var(--oz)); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-dim)}
+.dstats dd{margin:calc(2px*var(--oz)) 0 0; font-weight:700; font-size:calc(16px*var(--oz)); color:#ffffff}
+.overlay .daily .cta.dplay{width:100%; margin-top:calc(2px*var(--oz)); background:linear-gradient(#ffe07a,#ffad33); color:#3a2100; border-color:#fff0b3;
+  box-shadow:0 calc(3px*var(--oz)) 0 #a8641a, 0 0 calc(18px*var(--oz)) rgba(255,190,60,.3)}
 .overlay .daily .cta.dplay:hover{background:linear-gradient(#ffe68f,#ffb84a)}
-.dnote{font-size:11px !important; color:var(--ink-dim) !important; margin:6px 0 0 !important; max-width:none !important; text-align:center}
-.dscore{font-family:"Lilita One","Fredoka",sans-serif; font-size:44px; line-height:1; color:#ffffff; margin-top:6px}
-.dscore small{font-family:"Fredoka",sans-serif; font-size:13px; color:var(--ink-dim); margin-left:6px}
-.dwhere{font-size:13px !important; color:var(--ink) !important; margin:2px 0 4px !important; max-width:none !important}
+.dnote{font-size:calc(11px*var(--oz)) !important; color:var(--ink-dim) !important; margin:calc(6px*var(--oz)) 0 0 !important; max-width:none !important; text-align:center}
+.dscore{font-family:"Lilita One","Fredoka",sans-serif; font-size:calc(44px*var(--oz)); line-height:1; color:#ffffff; margin-top:calc(6px*var(--oz))}
+.dscore small{font-family:"Fredoka",sans-serif; font-size:calc(13px*var(--oz)); color:var(--ink-dim); margin-left:calc(6px*var(--oz))}
+.dwhere{font-size:calc(13px*var(--oz)) !important; color:var(--ink) !important; margin:calc(2px*var(--oz)) 0 calc(4px*var(--oz)) !important; max-width:none !important}
 #ov-after{width:100%; display:flex; flex-direction:column; align-items:center}
-@media (max-width:480px){ .daily{padding:10px} .dstats dd{font-size:14px} .drule b{font-size:17px} .dscore{font-size:38px} }
+@media (max-width:480px){ .daily{padding:calc(10px*var(--oz))} .dstats dd{font-size:calc(14px*var(--oz))} .drule b{font-size:calc(17px*var(--oz))} .dscore{font-size:calc(38px*var(--oz))} }
 @media (max-width:480px), (max-height:560px){
-  .overlay.is-title{gap:6px; padding-top:10px; padding-bottom:10px}
+  .overlay.is-title{gap:calc(6px*var(--oz)); padding-top:calc(10px*var(--oz)); padding-bottom:calc(10px*var(--oz))}
   .overlay.is-title #ov-body{display:none}
-  .overlay.is-title .actions .cta:not(.primary){padding:7px 12px; font-size:12px}
-  .overlay.is-title .actions .cta small{display:inline; margin:0 0 0 4px}
-  .overlay.is-title .daily{margin-top:2px}
-  .overlay.is-title .drule{margin:4px 0}
-  .overlay.is-title .drule span{font-size:12px}
-  .overlay.is-title .dstats{margin:4px 0 6px}
-  .overlay.is-title .dstats div{padding:4px 6px}
+  .overlay.is-title .actions .cta:not(.primary){padding:calc(7px*var(--oz)) calc(12px*var(--oz)); font-size:calc(12px*var(--oz))}
+  .overlay.is-title .actions .cta small{display:inline; margin:0 0 0 calc(4px*var(--oz))}
+  .overlay.is-title .daily{margin-top:calc(2px*var(--oz))}
+  .overlay.is-title .drule{margin:calc(4px*var(--oz)) 0}
+  .overlay.is-title .drule span{font-size:calc(12px*var(--oz))}
+  .overlay.is-title .dstats{margin:calc(4px*var(--oz)) 0 calc(6px*var(--oz))}
+  .overlay.is-title .dstats div{padding:calc(4px*var(--oz)) calc(6px*var(--oz))}
 }
 @media (max-width:520px){ .axogrid{grid-template-columns:repeat(2, minmax(0, 1fr))} }
-@media (max-width:480px){ .overlay{padding:12px; gap:6px} .overlay p{font-size:12px} table.scores{font-size:12px; min-width:0} .roster{gap:4px 10px} }
-.overlay .cta:focus-visible, button:focus-visible{outline:2px solid var(--axo); outline-offset:3px}
+@media (max-width:480px){ .overlay{padding:calc(12px*var(--oz)); gap:calc(6px*var(--oz))} .overlay p{font-size:calc(12px*var(--oz))} table.scores{font-size:calc(12px*var(--oz)); min-width:0} .roster{gap:calc(4px*var(--oz)) calc(10px*var(--oz))} }
+.overlay .cta:focus-visible, button:focus-visible{outline:calc(2px*var(--oz)) solid var(--axo); outline-offset:calc(3px*var(--oz))}
 
-.controls{flex:0 0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px}
-.pad{display:grid; grid-template-columns:repeat(3,48px); grid-template-rows:repeat(2,44px); gap:5px}
+.controls{flex:0 0 auto; width:var(--bw, 100%); display:flex; align-items:center; justify-content:center}
+/* the D-pad: thumb-sized, only on touch screens and only when switched on (pause menu) */
+.pad{display:grid; grid-template-columns:repeat(3,58px); grid-template-rows:repeat(2,56px); gap:6px}
 .pad button{
   border:1px solid rgba(34,199,222,.28); background:rgba(9,44,60,.55);
-  color:var(--glow); border-radius:11px; font-size:17px; cursor:pointer;
+  color:var(--glow); border-radius:12px; font-size:20px; cursor:pointer;
   display:flex; align-items:center; justify-content:center; touch-action:none;
 }
 .pad button:active{background:rgba(34,199,222,.22)}
@@ -264,76 +326,82 @@ canvas.art{background:transparent; box-shadow:none; border-radius:0}
 .pad .left{grid-column:1; grid-row:2}
 .pad .down{grid-column:2; grid-row:2}
 .pad .right{grid-column:3; grid-row:2}
-.side{display:flex; flex-direction:column; gap:6px; align-items:flex-end}
-.side button{
-  border:1px solid rgba(34,199,222,.28); background:rgba(9,44,60,.45);
-  color:var(--ink); border-radius:999px; padding:8px 14px; cursor:pointer;
-  font-family:"Fredoka",sans-serif; font-weight:600; font-size:12px; letter-spacing:.06em; text-transform:uppercase; min-width:96px;
-}
-.side button:active{background:rgba(34,199,222,.18)}
+body[data-input="keyboard"] .controls, body[data-input="touch"]:not(.dpad) .controls{display:none}
+body[data-input="touch"] .keys{display:none}
+/* icon buttons beside the title: pause, sound (and fullscreen where it works) */
+.hudbtns{display:flex; gap:6px; align-items:center}
+.ibtn{width:44px; height:44px; padding:0; border-radius:50%; cursor:pointer; flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid rgba(34,199,222,.3); background:rgba(9,44,60,.5); color:var(--ink)}
+.ibtn svg{width:20px; height:20px}
+.ibtn:hover{background:rgba(34,199,222,.14)}
+.ibtn:active{background:rgba(34,199,222,.22)}
+.ibtn[aria-pressed="false"]{color:var(--ink-dim)}
+.ibtn[hidden]{display:none}
 .keys{flex:0 0 auto; margin:0; font-size:11px; font-weight:300; color:var(--ink-dim); text-align:center; letter-spacing:.03em}
-@media (max-height:720px){ .sub{display:none} h1{font-size:22px} }
+@media (max-height:720px){ .sub{display:none} }
 @media (max-width:480px){ .sub{display:none} }
 @media (prefers-reduced-motion:reduce){ *{transition:none !important} }
 button{touch-action:manipulation}
+/* a game, not a page: no text selection, no long-press callout ("Search Web"),
+   no tap flash, and touches never scroll, bounce or zoom. Menus that need to
+   scroll get pan-y back; the name box can still be typed and selected. */
+html, body{-webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent}
+.shell{touch-action:none}
+.overlay{touch-action:pan-y}
+input, textarea{-webkit-user-select:text; user-select:text; -webkit-touch-callout:default}
 .sr-only{position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0}
 .stage{touch-action:none}
 /* long menus keep their buttons in reach */
-.overlay #ov-actions{position:sticky; bottom:-20px; z-index:2; padding:8px 0; margin:0 -8px;
+.overlay #ov-actions{position:sticky; bottom:calc(-20px*var(--oz)); z-index:2; padding:calc(8px*var(--oz)) 0; margin:0 -8px;
   background:linear-gradient(rgba(3,16,26,0), rgba(3,16,26,.92) 30%)}
 .overlay.is-title #ov-actions, .overlay.is-howto #ov-actions{position:static; background:none; padding:0; margin:0}
+.overlay:not(.scrolls) #ov-actions{background:none}
 @media (pointer: coarse){
-  .pad{grid-template-columns:repeat(3,58px); grid-template-rows:repeat(2,52px); gap:6px}
-  .pad button{font-size:20px}
-  .side button{min-height:44px; padding:10px 16px; font-size:12.5px}
-  .side{gap:8px}
-  .overlay .cta{min-height:42px}
-  .tabs button, .chips button{min-height:36px}
+  .overlay .cta{min-height:calc(42px*var(--oz))}
+  .tabs button, .chips button{min-height:calc(36px*var(--oz))}
 }
 @media (max-width:520px){
   .stat .k{font-size:11px; letter-spacing:.1em}
   .stat .v{font-size:20px}
-  .lives svg{width:22px; height:17px}
+  .lives svg{width:22px}
 }
-/* small screens: menus may use the whole play area, not just the tank */
+/* small screens: menus may use the whole screen, not just the tank */
 @media (max-width:520px), (max-height:600px){
-  .stage{position:relative}
-  .tankwrap{position:static}
-  .overlay{border-radius:16px}
+  .shell{position:relative}
+  .stage, .tankwrap{position:static}
+  .overlay{border-radius:16px; inset:max(4px, env(safe-area-inset-top)) max(4px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(4px, env(safe-area-inset-left))}
 }
 @media (max-height:520px){
   .overlay.is-title .hero{display:none}
   .overlay.is-title .dnote{display:none}
 }
 @media (max-height:640px){
-  .hero canvas{width:150px; height:60px}
+  .hero canvas{width:calc(150px*var(--oz)); height:calc(60px*var(--oz))}
   .overlay.is-title .dnote{display:none}
-  .overlay.is-title .cta.big{font-size:22px; padding:6px 0 8px}
+  .overlay.is-title .cta.big{font-size:calc(22px*var(--oz)); padding:calc(6px*var(--oz)) 0 calc(8px*var(--oz))}
 }
-@media (orientation:landscape) and (max-height:540px){
-  .shell{max-width:none; display:grid; gap:8px 14px;
-    grid-template-columns:minmax(150px,1fr) minmax(0,3fr) minmax(110px,1fr);
-    grid-template-rows:auto auto 1fr auto;
-    grid-template-areas:"head stage side" "hud stage side" ". stage side" "pad stage side"}
-  header{grid-area:head; text-align:left}
-  h1{font-size:18px; letter-spacing:.1em; margin:0}
-  .hud{grid-area:hud; display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:0}
-  .stage{grid-area:stage; height:100%; width:auto}
-  .controls{display:contents}
-  .pad{grid-area:pad; align-self:end}
-  .side{grid-area:side; align-self:center; justify-self:end}
-  .keys{display:none}
-  .roster{display:none}
-}
+.wide .controls{grid-area:controls; width:auto; align-self:end; justify-self:center}
+.wide .pad{opacity:.78}
+.wide .keys{grid-area:keys; align-self:end; text-align:center}
+.wide .roster{display:none}
 </style>
 </head>
 <body>
 <noscript><p style="position:fixed;inset:auto 0 0 0;margin:0;padding:12px;text-align:center;background:#062633;color:#ffd34d;font:16px sans-serif">
   Axolotl Chase needs JavaScript switched on to play.</p></noscript>
-<div class="shell">
+<div class="shell" id="shell">
   <p class="sr-only" id="announce" aria-live="polite"></p>
+  <!-- the title and HUD: a strip above the tank in portrait, a panel beside it in landscape -->
+  <div class="panel" id="panel">
   <header>
     <h1>AXOLOTL CHASE</h1>
+    <!-- small icon buttons; the speed setting lives in the pause menu and on the title screen -->
+    <div class="hudbtns" id="hudbtns">
+      <button class="ibtn" id="pauseBtn" aria-label="Play"></button>
+      <button class="ibtn" id="soundBtn" aria-label="Sound" aria-pressed="true"></button>
+      <button class="ibtn" id="fsBtn" aria-label="Full screen" hidden></button>
+    </div>
     <p class="sub">A tiny axolotl. A hungry tank. A LOT of fish.</p>
   </header>
 
@@ -343,11 +411,13 @@ button{touch-action:manipulation}
     <div class="stat"><span class="k">Tank</span><span class="v" id="level">1</span></div>
     <div class="stat"><span class="k">Axolotls</span><span class="lives" id="lives"></span></div>
   </div>
+  </div>
 
   <div class="stage" id="stage">
     <div class="tankwrap" id="tankwrap">
     <canvas id="tank" role="img" aria-label="The tank: guide the axolotl through the maze"></canvas>
     <div class="overlay on" id="overlay" role="dialog" aria-modal="true" aria-labelledby="ov-title">
+      <div class="ovin">
       <h2 id="ov-title">Dive in</h2>
       <ul class="roster" id="roster"></ul>
       <p id="ov-body">Arrow keys or WASD on a computer. Swipe the tank or use the pad on a touchscreen.</p>
@@ -355,25 +425,21 @@ button{touch-action:manipulation}
       <div class="actions" id="ov-actions"></div>
       <div id="ov-after"></div>
       <p class="toast" id="ov-toast" role="status"></p>
+      </div>
     </div>
     </div>
   </div>
 
-  <div class="controls">
+  <div class="controls" id="controls">
     <div class="pad">
       <button class="up" data-dir="up" aria-label="Swim up">▲</button>
       <button class="left" data-dir="left" aria-label="Swim left">◀</button>
       <button class="down" data-dir="down" aria-label="Swim down">▼</button>
       <button class="right" data-dir="right" aria-label="Swim right">▶</button>
     </div>
-    <div class="side">
-      <button id="pauseBtn">Pause</button>
-      <button id="speedBtn">Speed: calm</button>
-      <button id="soundBtn" aria-pressed="true">Sound on</button>
-    </div>
   </div>
 
-  <p class="keys">Arrows / WASD · P pauses · swipe anywhere on the tank</p>
+  <p class="keys" id="keys">Arrows/WASD · P pause · M sound</p>
 </div>
 
 <script>
@@ -483,20 +549,99 @@ const MAZE_CAVE = [
 "#o.................o#",
 "#####################"
 ];
+/* Wide tanks for landscape screens: 29x17, about the same area, shrimp count
+   and path density as the 21x23 tanks above, with the same fish cave and
+   gate in the middle. Authored and checked with tools/mazes.py. */
+const WIDE_CANAL = [
+"#############################",
+"#o.........................o#",
+"#.###.#####.#####.#####.###.#",
+"   .......................   ",
+"###.#.########.########.#.###",
+"###.#.##.           .##.#.###",
+"###.#.##.#####-#####.##.#.###",
+"###.#.##.##       ##.##.#.###",
+"   ......##       ##......   ",
+"###.#.##.##       ##.##.#.###",
+"###.#.##.###########.##.#.###",
+"###.#...................#.###",
+"###.#.#####.#####.#####.#.###",
+"#...........................#",
+"#.###.##.##.##.##.##.##.###.#",
+"#o.........................o#",
+"#############################"
+];
+const WIDE_POND = [
+"#############################",
+"#o.........................o#",
+"#.###.#####.#####.#####.###.#",
+"   .......................   ",
+"###.#.########.########.#.###",
+"###.#.##.           .##.#.###",
+"###.#.##.#####-#####.##.#.###",
+"###.#.##.##       ##.##.#.###",
+"   ......##       ##......   ",
+"###.#.##.##       ##.##.#.###",
+"###.#.##.###########.##.#.###",
+"###.#...................#.###",
+"###.#.#####.#####.#####.#.###",
+"   .......................   ",
+"#.#.#.##.##.##.##.##.##.#.#.#",
+"#o.........................o#",
+"#############################"
+];
+const WIDE_REEF = [
+"#############################",
+"#o.........................o#",
+"#.###.#####.##.##.#####.###.#",
+"#...........................#",
+"###.#.########.########.#.###",
+"###.#.##.           .##.#.###",
+"###.#.##.#####-#####.##.#.###",
+"###.#.##.##       ##.##.#.###",
+"   ......##       ##......   ",
+"###.#.##.##       ##.##.#.###",
+"###.#.##.###########.##.#.###",
+"###.#...................#.###",
+"###.#.#####.#####.#####.#.###",
+"#...........................#",
+"#.###.#####.##.##.#####.###.#",
+"#o.........................o#",
+"#############################"
+];
+const WIDE_CAVE = [
+"#############################",
+"#o............#............o#",
+"#.###.#####.#.#.#.#####.###.#",
+"   .......................   ",
+"###.#.########.########.#.###",
+"###.#.##.           .##.#.###",
+"###.#.##.#####-#####.##.#.###",
+"###.#.##.##       ##.##.#.###",
+"   ......##       ##......   ",
+"###.#.##.##       ##.##.#.###",
+"###.#.##.###########.##.#.###",
+"###.#...................#.###",
+"###.#.#####.#####.#####.#.###",
+"#...........................#",
+"#.###.##.##.##.##.##.##.###.#",
+"#o.........................o#",
+"#############################"
+];
 /* Habitats cycle every four tanks. Each has its own look and one twist. */
 const HABITATS = [
-  {key:'canal', name:'Xochimilco Canals', hint:'Where it all began. Clear the canals!', maze:MAZE_CANAL,
+  {key:'canal', name:'Xochimilco Canals', hint:'Where it all began. Clear the canals!',
    bg:'#03121c', edge:'#22c7de', fill:'#062634', cave:'#0a3446', glow:'rgba(34,199,222,.55)', deco:'reeds'},
-  {key:'pond', name:'Lily Pond', hint:'Two extra tunnels. Use them to lose the fish!', maze:MAZE_POND,
+  {key:'pond', name:'Lily Pond', hint:'Two extra tunnels. Use them to lose the fish!',
    bg:'#04140d', edge:'#5fdc8a', fill:'#08281a', cave:'#0c3a24', glow:'rgba(95,220,138,.5)', deco:'lily'},
-  {key:'reef', name:'Coral Reef', hint:'Ride the currents to outswim the fish!', maze:MAZE_REEF,
+  {key:'reef', name:'Coral Reef', hint:'Ride the currents to outswim the fish!',
    bg:'#0d0a1c', edge:'#ff7eb0', fill:'#26102a', cave:'#2e1436', glow:'rgba(255,126,176,.5)', deco:'coral',
-   currents:[{row:4, dir:'right'}, {row:21, dir:'left'}]},
-  {key:'cave', name:'Deep Cave', hint:'Pitch dark. Your glow is the only light. Bloodworms light it up!', maze:MAZE_CAVE,
+   currents:true},
+  {key:'cave', name:'Deep Cave', hint:'Pitch dark. Your glow is the only light. Bloodworms light it up!',
    bg:'#010508', edge:'#8a7dff', fill:'#0b0a22', cave:'#14123a', glow:'rgba(138,125,255,.5)', deco:'crystals', dark:true}
 ];
 let hab = HABITATS[0];
-let MAZE = hab.maze;
+let MAZE = MAZE_CANAL;
 function habitatFor(lvl){ return HABITATS[(lvl - 1 + (mode === 'daily' ? daily.start : 0)) % HABITATS.length]; }
 
 /* ------------------------- daily challenge -------------------------
@@ -538,8 +683,7 @@ let mode = 'classic';                // classic | daily
 let daily = dailyFor(todayKey());
 let rng = Math.random;               // gameplay randomness (seeded in daily mode)
 function rule(k){ return mode === 'daily' && daily.rule.key === k; }
-const RIPTIDE = [{row:4, dir:'right'}, {row:21, dir:'left'}];
-function tankCurrents(){ return hab.currents || (rule('riptide') ? RIPTIDE : null); }
+function tankCurrents(){ return hab.currents || rule('riptide') ? LAYOUT.currents : null; }
 function tankDark(){ return !!hab.dark || rule('lightsout'); }
 
 /* small wrapper so a blocked or private-mode browser never breaks the game */
@@ -547,8 +691,15 @@ const store = {
   get(k, d){ try{ const v = localStorage.getItem('axolotl-chase:' + k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
   set(k, v){ try{ localStorage.setItem('axolotl-chase:' + k, JSON.stringify(v)); }catch(e){} }
 };
-const COLS = 21, ROWS = 23, TILE = 32;
-const W = COLS * TILE, H = ROWS * TILE;
+const TILE = 32;
+let COLS = 21, ROWS = 23;                // set by the tank layout (setLayout)
+/* How big things are DRAWN, as multiples of their original drawing size.
+   Like the arcade original (16px sprites on an 8px grid), characters are
+   drawn bigger than the tile they occupy and may overlap the walls.
+   Presentation only: movement, turning, catches (TILE*0.62) and eating all
+   work on tiles and positions and never read these. */
+const SPRITE_SCALE = {axolotl:1.35, fish:1.4, bloodworm:1.4, pellet:1.3};
+let W = COLS * TILE, H = ROWS * TILE;
 
 const DIRS = {
   up:   {x: 0, y:-1, a:-Math.PI/2},
@@ -579,11 +730,44 @@ const MODE_PLAN = [
   {mode:'scatter', t:5}, {mode:'chase', t:Infinity}
 ];
 
-const DEN = {x:10, y:10};
-const DOOR = {x:10, y:8};
-const GATE = {x:10, y:7};
-const PLAYER_START = {x:10, y:16};
-const BONUS_TILE = {x:10, y:13};
+/* Two tank layouts. The standard tank is tall (21x23); landscape screens get
+   a wide tank (29x17) for classic games. The layout is picked when a game
+   starts and never changes mid-game. Daily challenges always use the
+   standard tank, so it stays the same tanks for everyone.
+   cave: the fish cave's walls; cardRow: where the tank cards are drawn. */
+const LAYOUTS = {
+  std: {key:'std', cols:21, rows:23, mazes:{canal:MAZE_CANAL, pond:MAZE_POND, reef:MAZE_REEF, cave:MAZE_CAVE},
+        den:{x:10, y:10}, door:{x:10, y:8}, gate:{x:10, y:7}, start:{x:10, y:16}, bonus:{x:10, y:13},
+        cave:{x0:5, x1:15, y0:8, y1:12}, cardRow:13,
+        fishStart:[{x:10, y:7}, {x:10, y:10}, {x:8, y:10}, {x:12, y:10}],
+        scatter:[{x:19, y:1}, {x:1, y:1}, {x:19, y:21}, {x:1, y:21}],
+        currents:[{row:4, dir:'right'}, {row:21, dir:'left'}]},
+  wide:{key:'wide', cols:29, rows:17, mazes:{canal:WIDE_CANAL, pond:WIDE_POND, reef:WIDE_REEF, cave:WIDE_CAVE},
+        den:{x:14, y:8}, door:{x:14, y:6}, gate:{x:14, y:5}, start:{x:14, y:13}, bonus:{x:14, y:11},
+        cave:{x0:9, x1:19, y0:6, y1:10}, cardRow:11,
+        fishStart:[{x:14, y:5}, {x:14, y:8}, {x:12, y:8}, {x:16, y:8}],
+        scatter:[{x:27, y:1}, {x:1, y:1}, {x:27, y:15}, {x:1, y:15}],
+        currents:[{row:3, dir:'right'}, {row:13, dir:'left'}]}
+};
+let LAYOUT = LAYOUTS.std;
+let DEN = LAYOUT.den, DOOR = LAYOUT.door, GATE = LAYOUT.gate, PLAYER_START = LAYOUT.start, BONUS_TILE = LAYOUT.bonus;
+/* switch layout (between games only). Returns true if it changed. */
+function setLayout(key){
+  const L = LAYOUTS[key] || LAYOUTS.std;
+  if(L === LAYOUT) return false;
+  LAYOUT = L;
+  COLS = L.cols; ROWS = L.rows; W = COLS * TILE; H = ROWS * TILE;
+  DEN = L.den; DOOR = L.door; GATE = L.gate; PLAYER_START = L.start; BONUS_TILE = L.bonus;
+  mazeBuiltFor = null;                       // the next resetGrid paints the new tank
+  sizeCanvas(); fitTank();
+  return true;
+}
+/* classic games on a landscape screen get the wide tank */
+function preferredLayout(){
+  const vv = window.visualViewport;
+  const vw = (vv && vv.width) || window.innerWidth || 0, vh = (vv && vv.height) || window.innerHeight || 0;
+  return vw > 0 && vh > 0 && vw / vh > 1.3 ? 'wide' : 'std';
+}
 
 /* --------------------------------------------------------------- */
 const cv = document.getElementById('tank');
@@ -602,10 +786,13 @@ const elSub = document.querySelector ? document.querySelector('.sub') : null;
 const elLives = document.getElementById('lives');
 const pauseBtn = document.getElementById('pauseBtn');
 const soundBtn = document.getElementById('soundBtn');
-const speedBtn = document.getElementById('speedBtn');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const BLINK_HZ = reduceMotion ? 4 : 6;           // warning blinks stay under 3 flashes a second
 
+/* dpr: logical tank pixels to backing-store pixels. The game always thinks in
+   its own 672x736 space (TILE = 32); only this render scale changes with the
+   screen, so movement, speed and collisions never depend on screen size. */
+const MAX_DPR = 3;
 let dpr = Math.min(window.devicePixelRatio || 1, 2);
 function sizeCanvas(){
   cv.width = Math.round(W * dpr);
@@ -614,29 +801,121 @@ function sizeCanvas(){
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 sizeCanvas();
-/* fit the tank inside whatever space the layout leaves it, keeping its shape */
-const stageEl = document.getElementById('stage'), wrapEl = document.getElementById('tankwrap');
+const byId = id => document.getElementById(id);
+const stageEl = byId('stage'), wrapEl = byId('tankwrap'), shellEl = byId('shell'),
+      panelEl = byId('panel'), controlsEl = byId('controls'), keysEl = byId('keys');
 /* text drawn in the tank grows when the tank is shown small (phones), so it
    stays readable: 1 on a desktop, up to 1.6 on a small phone */
 let textScale = 1;
+let tilePx = 0, wideLayout = null;             // displayed size of one tile (CSS px), and the layout in use
+const px = v => parseFloat(v) || 0;
+/* how much room a box takes in the shell's main direction, if it is showing */
+function extent(el, wide){
+  if(!el || !el.getBoundingClientRect) return 0;
+  const r = el.getBoundingClientRect();
+  return wide ? r.width : r.height;
+}
+/* the biggest whole-pixel tile for one HUD arrangement (applies its classes) */
+function measureTile(side, landscape, vw, vh){
+  const body = document.body;
+  body.classList.toggle('wide', side); body.classList.toggle('tall', !side); body.classList.toggle('strip', !side && landscape);
+  const cs = getComputedStyle(shellEl);
+  const availW0 = vw - px(cs.paddingLeft) - px(cs.paddingRight);
+  const availH0 = vh - px(cs.paddingTop) - px(cs.paddingBottom);
+  let availW, availH;
+  if(side){
+    // the side columns have a fixed width; the tank gets what is left
+    const w = px(getComputedStyle(body).getPropertyValue('--side')) || extent(panelEl, true);
+    availW = availW0 - 2 * w - 2 * px(cs.columnGap);
+    availH = availH0;
+  } else {
+    // the strip above, and the controls and hint below, keep their own height
+    const parts = [panelEl, controlsEl, keysEl].map(el => extent(el, false)).filter(h => h > 0);
+    availW = availW0;
+    availH = availH0 - parts.reduce((a, b) => a + b, 0) - parts.length * px(cs.rowGap);
+  }
+  return Math.max(4, Math.floor(Math.min(availW / COLS, availH / ROWS)));
+}
 function fitTank(){
-  const s = Math.min(stageEl.clientWidth / W, stageEl.clientHeight / H);
-  if(!(s > 0)) return;
+  const vv = window.visualViewport;
+  const vw = (vv && vv.width) || window.innerWidth || 0, vh = (vv && vv.height) || window.innerHeight || 0;
+  const body = document.body;
+  if(!(vw > 0 && vh > 0) || !body || !window.getComputedStyle) return false;
+  // landscape: try the HUD as a panel beside the tank and as a strip above it,
+  // and keep whichever leaves the bigger tank (the wide tank usually wants the strip)
+  const landscape = vw / vh > 1.1;
+  const tries = landscape ? [true, false] : [false];
+  let wide = tries[0], t = 0;
+  for(const side of tries){
+    const ti = measureTile(side, landscape, vw, vh);
+    if(ti > t){ t = ti; wide = side; }
+  }
+  if(wide !== tries[tries.length - 1]) measureTile(wide, landscape, vw, vh);
+
+  const changed = t !== tilePx || wide !== wideLayout;
+  tilePx = t; wideLayout = wide;
+  const s = t / TILE, bw = t * COLS, bh = t * ROWS;
   textScale = Math.max(1, Math.min(1.6, 0.72 / s));
-  // draw only as many pixels as the screen shows: the tank's displayed size in
-  // device pixels, in quarter steps, between 1x and 2x of its logical size
-  const want = Math.max(1, Math.min(2, Math.ceil(s * (window.devicePixelRatio || 1) * 4) / 4));
-  if(want !== dpr){
+  const root = document.documentElement.style;
+  root.setProperty('--tile', t + 'px'); root.setProperty('--bw', bw + 'px'); root.setProperty('--bh', bh + 'px');
+  wrapEl.style.width = bw + 'px';
+  wrapEl.style.height = bh + 'px';
+  // menus grow with the tank on big screens; small screens keep their tuned sizes
+  if(overlay && overlay.getBoundingClientRect && overlay.style.setProperty){
+    const o = overlay.getBoundingClientRect();
+    const oz = Math.max(1, Math.min(1.6, o.width / 600, o.height / 700));
+    if(o.width > 0) overlay.style.setProperty('--oz', oz.toFixed(3));
+  }
+  // crisp at any size: one backing pixel per device pixel (DPR capped at 3)
+  const want = s * Math.min(window.devicePixelRatio || 1, MAX_DPR);
+  if(Math.abs(want - dpr) > 1e-6){
     dpr = want; sizeCanvas();
     clearTimeout(fitTank.rebuild);                 // rebuild the baked layers once resizing settles
-    fitTank.rebuild = setTimeout(() => { if(typeof buildMazeLayer === 'function' && mazeBuiltFor) buildMazeLayer(); }, 120);
+    fitTank.rebuild = setTimeout(() => { if(typeof buildMazeLayer === 'function' && mazeBuiltFor) buildMazeLayer(); }, 150);
   }
-  wrapEl.style.width = Math.floor(W * s) + 'px';
-  wrapEl.style.height = Math.floor(H * s) + 'px';
+  return changed;
 }
+/* ------------------- input: keyboard or touch -------------------
+   A first guess from the device, then whatever the player actually uses
+   (<body data-input>). Keyboard: no D-pad, a key legend. Touch: swipes,
+   and a D-pad only if switched on in the pause menu. */
+const mq = q => !!(window.matchMedia && window.matchMedia(q).matches);
+let inputMode = mq('(pointer: coarse)') && !mq('(hover: hover)') ? 'touch' : 'keyboard';
+let dpadOn = store.get('dpad', false) === true;
+if(document.body){ document.body.dataset.input = inputMode; document.body.classList.toggle('dpad', dpadOn); }
+function setInput(m){
+  if(m === inputMode) return;
+  inputMode = m;
+  if(document.body) document.body.dataset.input = m;
+  queueFit();                                  // the controls below the tank come or go
+}
+function setDpad(on){
+  dpadOn = on; store.set('dpad', on);
+  if(document.body) document.body.classList.toggle('dpad', on);
+  queueFit();
+}
+window.addEventListener('keydown', () => setInput('keyboard'), true);
+window.addEventListener('touchstart', () => setInput('touch'), {capture:true, passive:true});
+
 fitTank();
-if(window.ResizeObserver) new ResizeObserver(fitTank).observe(stageEl);
-window.addEventListener('resize', fitTank);
+/* re-fit on any change of size or orientation, once per frame at most. If the
+   tank changes size mid-game, pause, so nobody is caught while it jumps. */
+let fitQueued = false;
+function queueFit(){
+  if(fitQueued) return;
+  fitQueued = true;
+  requestAnimationFrame(() => {
+    fitQueued = false;
+    // on the title screen the backdrop follows the screen; a game keeps its tank
+    if(state === 'title' && setLayout(preferredLayout())){ resetGrid(); placeActors(); }
+    if(fitTank()) autoPause('turned');
+    markScroll();
+  });
+}
+window.addEventListener('resize', queueFit);
+window.addEventListener('orientationchange', () => { autoPause('turned'); queueFit(); });
+if(window.visualViewport) window.visualViewport.addEventListener('resize', queueFit);
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(queueFit);    // the title font changes the strip's height
 
 /* ---------------------------- state ---------------------------- */
 let grid = [];
@@ -945,7 +1224,7 @@ const bgLayer = document.createElement('canvas');
 const bctx = bgLayer.getContext('2d');
 let caveGlows = [], anemones = [];
 function isWall(x, y){ return y >= 0 && y < ROWS && x >= 0 && x < COLS && MAZE[y][x] === '#'; }
-function inDen(x, y){ return y >= 8 && y <= 12 && x >= 5 && x <= 15; }
+function inDen(x, y){ const c = LAYOUT.cave; return y >= c.y0 && y <= c.y1 && x >= c.x0 && x <= c.x1; }
 function pick(r, list){ return list[(r() * list.length) | 0]; }
 
 /* soft round glow sprites, one per colour, reused everywhere instead of
@@ -1052,7 +1331,8 @@ function buildMazeLayer(){
 
   // the cave the fish hatch from: a deeper pool
   mctx.fillStyle = 'rgba(0,0,0,.28)';
-  roundRect(mctx, 5.6*TILE, 8.6*TILE, 9.8*TILE, 3.8*TILE, 16);
+  const cv0 = LAYOUT.cave;
+  roundRect(mctx, (cv0.x0 + 0.6)*TILE, (cv0.y0 + 0.6)*TILE, (cv0.x1 - cv0.x0 - 0.2)*TILE, (cv0.y1 - cv0.y0 - 0.2)*TILE, 16);
 
   // 1. the walls: mortar, then cobbles, texture and small decorations, all inside the wall shape
   const S = layerCanvas();
@@ -1613,7 +1893,7 @@ function drawBubbles(){
 /* -------------------------- level setup ------------------------ */
 function resetGrid(){
   const h = habitatFor(level);
-  if(h !== hab || mazeBuiltFor !== h){ hab = h; MAZE = hab.maze; buildMazeLayer(); }
+  if(h !== hab || mazeBuiltFor !== h){ hab = h; MAZE = LAYOUT.mazes[hab.key]; buildMazeLayer(); }
   _bfsCache.clear();                        // cached routes home belong to the old maze
   grid = MAZE.map(row => row.split(''));
   pelletsLeft = 0;
@@ -1630,8 +1910,8 @@ function placeActors(){
   fish.length = 0;
   FISH_SPEC.forEach((spec, i) => {
     fish.push({
-      idx: i, name: spec.name, colour: spec.colour, scatter: spec.scatter,
-      tx: spec.start.x, ty: spec.start.y, off: 0,
+      idx: i, name: spec.name, colour: spec.colour, scatter: LAYOUT.scatter[i],
+      tx: LAYOUT.fishStart[i].x, ty: LAYOUT.fishStart[i].y, off: 0,
       dir: i === 0 ? 'left' : 'up',
       state: spec.inDen ? 'den' : 'hunt',
       denTimer: spec.release / speedScale(),
@@ -1750,6 +2030,7 @@ function startGame(m){
   mode = m || mode;
   daily = dailyFor(todayKey());                 // pick up a new day if the page was left open
   rng = mode === 'daily' ? mulberry32(daily.seed) : Math.random;
+  setLayout(mode === 'daily' ? 'std' : preferredLayout());
   const last = rule('lastaxo');
   score = 0; level = 1; lives = last ? 1 : 3;
   runSpeed = mode === 'daily' ? 2 : speedChoice;
@@ -1759,7 +2040,6 @@ function startGame(m){
   runUnlocks = []; runBestCombo = 0; runPerfects = 0;
   setState('ready', 3.2);
   announce('Tank 1: ' + hab.name + '. ' + hab.hint + (mode === 'daily' ? ' Daily rule: ' + daily.rule.name + '. ' + daily.rule.desc : ''));
-  refreshSpeedBtn();
   drawLives();
   updateHud();
   sfxStart();
@@ -1786,7 +2066,7 @@ function loseLife(){
 }
 function setState(s, t){
   state = s; stateTimer = t || 0; stateTotal = t || 0;
-  if(pauseBtn) pauseBtn.textContent = s === 'paused' ? 'Resume' : s === 'title' || s === 'over' ? 'Play' : 'Pause';
+  refreshPauseBtn();
   if(s === 'playing' || s === 'ready') hideOverlay();
 }
 
@@ -1799,7 +2079,7 @@ const rosterEl = document.getElementById('roster');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /* buttons: [{label, sub, fn, primary}] — the first button is what Enter/Space presses */
 function showOverlay(title, body, buttons, extraHTML, afterHTML){
-  overlay.classList.remove('is-title', 'is-howto');
+  overlay.classList.remove('is-title', 'is-howto', 'tap-resume');
   ovTitle.textContent = title;
   ovBody.textContent = body || '';
   ovBody.style.display = body ? '' : 'none';
@@ -1817,10 +2097,13 @@ function showOverlay(title, body, buttons, extraHTML, afterHTML){
   }
   overlay.classList.add('on');
   overlay.scrollTop = 0;
+  requestAnimationFrame(markScroll);
   const first = overlay.querySelector('[data-default]') || ovActions.querySelector('.primary') || ovActions.querySelector('button');
   if(first && first.focus) setTimeout(() => { try{ first.focus({preventScroll:true}); }catch(e){} }, 0);
 }
 function hideOverlay(){ overlay.classList.remove('on'); }
+/* the sticky button bar only needs its fade when the menu actually scrolls */
+function markScroll(){ overlay.classList[overlay.scrollHeight > overlay.clientHeight + 1 ? 'add' : 'remove']('scrolls'); }
 const announceEl = document.getElementById('announce');
 function announce(msg){ if(announceEl) announceEl.textContent = msg; }
 function toast(msg){ ovToast.textContent = msg; }
@@ -1958,11 +2241,16 @@ function wireDailyButton(){
 }
 function showTitle(){
   daily = dailyFor(todayKey());
+  if(state === 'title' && setLayout(preferredLayout())){ resetGrid(); placeActors(); }
   const fromShare = /[?&]mode=daily/.test(location.search);
   const others = [
     {label:'How to play', fn:() => showHowTo(showTitle), small:true},
     {label:'Scores & stats', fn:() => showScores('classic', showTitle), small:true},
-    {label:'Axolotls', sub:VARIANTS.filter(isUnlocked).length + '/' + VARIANTS.length, fn:() => showCollection(showTitle), small:true}
+    {label:'Axolotls', sub:VARIANTS.filter(isUnlocked).length + '/' + VARIANTS.length, fn:() => showCollection(showTitle), small:true},
+    {label:'Speed', sub:SPEEDS[speedChoice].name, fn:() => {
+      cycleSpeed(); showTitle();
+      setTimeout(() => { const b = [...ovActions.querySelectorAll('button')].find(x => /^Speed/.test(x.textContent)); if(b) b.focus(); }, 0);
+    }, small:true}
   ];
   if(fromShare){
     // arrived from a friend's daily score: lead with today's challenge
@@ -2114,7 +2402,8 @@ function scoresTable(list, highlight){
   if(!list.length) return '<p class="empty">No scores yet. Be the first!</p>';
   return '<table class="scores">' + list.map((e, i) =>
     '<tr' + (i === highlight ? ' class="me"' : '') + '><td class="n">' + (i + 1) + '</td><td>' + esc(e.n || 'Axolotl') +
-    '</td><td class="s">' + e.s.toLocaleString('en-GB') + '</td><td class="t">tank ' + e.t + '</td></tr>').join('') + '</table>';
+    '</td><td class="s">' + e.s.toLocaleString('en-GB') + '</td><td class="t">tank ' + e.t + (e.w ? ' · wide' : '') + '</td></tr>').join('') + '</table>' +
+    (list.some(e => e.w) ? '<p class="empty">“wide”: set in the wide tank on a landscape screen.</p>' : '');
 }
 function showScores(m, back, highlight, sp){
   sp = sp || SPEEDS[speedChoice].key;
@@ -2328,7 +2617,8 @@ function endGame(){
   if(mode === 'daily' && stats.lastDaily !== daily.key){ stats.dailyDays++; stats.lastDaily = daily.key; }
   saveStats(); checkUnlocks(false);
   const run = {s:score, t:level, hab:hab.name, mode, day:daily.key, rule:daily.rule.name,
-               speed:mode === 'daily' ? 'normal' : SPEEDS[runSpeed].key, combo:runBestCombo, perfects:runPerfects, axo:axoVariant.key};
+               speed:mode === 'daily' ? 'normal' : SPEEDS[runSpeed].key, combo:runBestCombo, perfects:runPerfects, axo:axoVariant.key,
+               wide:LAYOUT.key === 'wide'};
   lastRun = run;
   let newBest = false;
   const ms = stats.modes[mode];
@@ -2373,7 +2663,7 @@ function askName(run, rank, newBest){
     const name = input.value.trim().slice(0, 12) || 'Axolotl';
     store.set('name', name);
     const list = scoreList(run.mode, run.speed).slice();
-    list.splice(rank, 0, {n:name, s:run.s, t:run.t, d:run.day});
+    list.splice(rank, 0, Object.assign({n:name, s:run.s, t:run.t, d:run.day}, run.wide ? {w:1} : {}));
     saveScoreList(run.mode, list.slice(0, MAX_SCORES), run.speed);
     showResults(run, rank, newBest);
   });
@@ -2887,7 +3177,7 @@ function holeSprite(){
 const dctx = darkLayer.getContext('2d');
 let lightR = TILE * 12;
 function drawDarkness(dt){
-  if(darkLayer.width !== cv.width || darkLayer.height !== cv.height){
+  if(darkLayer.width !== Math.ceil(cv.width / 2) || darkLayer.height !== Math.ceil(cv.height / 2)){
     darkLayer.width = Math.ceil(cv.width / 2); darkLayer.height = Math.ceil(cv.height / 2);
   }
   // how far the light reaches: wide while the tank is introduced, huge on a bloodworm
@@ -2939,12 +3229,13 @@ function drawGlowingEyes(f){
   const halo = glowSprite(frightened ? 'rgba(155,231,255,.9)' : f.state === 'eaten' ? 'rgba(255,255,255,.9)' : 'rgba(255,51,85,.9)');
   ctx.fillStyle = frightened ? '#bff1ff' : f.state === 'eaten' ? '#e8fbff' : '#ff5a70';
   // two eyes, sat just ahead of the fish's centre, each with a soft halo
-  const ox = q.x + d.x * 6, oy = q.y + d.y * 6;
-  const px = -d.y * 4, py = d.x * 4, lift = Math.abs(d.y) < 0.5 ? 3 : 0;
+  const k = SPRITE_SCALE.fish;
+  const ox = q.x + d.x * 6 * k, oy = q.y + d.y * 6 * k;
+  const px = -d.y * 4 * k, py = d.x * 4 * k, lift = Math.abs(d.y) < 0.5 ? 3 * k : 0;
   for(let s = -1; s <= 1; s += 2){
     const ex = ox + px*s, ey = oy + py*s - lift;
-    ctx.globalAlpha = 0.8; ctx.drawImage(halo, ex - 9, ey - 9, 18, 18);
-    ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(ex, ey, 2.2, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 0.8; ctx.drawImage(halo, ex - 9*k, ey - 9*k, 18*k, 18*k);
+    ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(ex, ey, 2.2*k, 0, Math.PI*2); ctx.fill();
   }
   ctx.restore();
 }
@@ -2953,21 +3244,22 @@ function drawGlowingEyes(f){
 function drawPellets(){
   const pulse = 0.55 + 0.45*Math.sin(clock*4);
   const glow = glowSprite('rgba(255,200,70,.9)');
+  const k = SPRITE_SCALE.pellet, pr = 3.4*k, gr = 8*k;
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
   ctx.globalAlpha = 0.5;
   for(let y = 0; y < ROWS; y++) for(let x = 0; x < COLS; x++)
-    if(grid[y][x] === '.') ctx.drawImage(glow, centre(x) - 8, centre(y) - 8, 16, 16);
+    if(grid[y][x] === '.') ctx.drawImage(glow, centre(x) - gr, centre(y) - gr, gr*2, gr*2);
   ctx.restore();
   ctx.fillStyle = '#ffd95a';
   ctx.beginPath();
   for(let y = 0; y < ROWS; y++) for(let x = 0; x < COLS; x++)
-    if(grid[y][x] === '.'){ ctx.moveTo(centre(x) + 3.4, centre(y)); ctx.arc(centre(x), centre(y), 3.4, 0, Math.PI*2); }
+    if(grid[y][x] === '.'){ ctx.moveTo(centre(x) + pr, centre(y)); ctx.arc(centre(x), centre(y), pr, 0, Math.PI*2); }
   ctx.fill();
   ctx.fillStyle = 'rgba(255,255,230,.9)';
   ctx.beginPath();
   for(let y = 0; y < ROWS; y++) for(let x = 0; x < COLS; x++)
-    if(grid[y][x] === '.'){ ctx.moveTo(centre(x) - 0.2, centre(y) - 1.2); ctx.arc(centre(x) - 1.2, centre(y) - 1.2, 1, 0, Math.PI*2); }
+    if(grid[y][x] === '.'){ ctx.moveTo(centre(x) - 0.35*pr + 1.3, centre(y) - 0.35*pr); ctx.arc(centre(x) - 0.35*pr, centre(y) - 0.35*pr, 0.3*pr, 0, Math.PI*2); }
   ctx.fill();
 
   const wglow = glowSprite('rgba(255,60,80,.9)');
@@ -2978,10 +3270,10 @@ function drawPellets(){
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       ctx.globalAlpha = 0.55 + pulse*0.35;
-      const gs = 34 + pulse*6;
+      const wk = SPRITE_SCALE.bloodworm, gs = (34 + pulse*6) * wk;
       ctx.drawImage(wglow, cx - gs/2, cy - gs/2, gs, gs);
       ctx.restore();
-      drawWorm(cx, cy, x);
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(wk, wk); drawWorm(0, 0, x); ctx.restore();
     }
   }
 }
@@ -3096,7 +3388,7 @@ function drawFx(){
       ctx.restore();
     } else if(e.kind === 'catch'){
       // the caught fish squashes, then puffs out and vanishes. Cartoon, never gory.
-      const R = TILE*0.45;
+      const R = TILE*0.45*SPRITE_SCALE.fish;
       let sx, sy;
       if(u < 0.25){ const a = u / 0.25; sx = 1 + 0.45*a; sy = 1 - 0.45*a; }
       else { const a = (u - 0.25) / 0.75; sx = 1.45 + 0.3*a; sy = 0.55 + 1.0*a; }
@@ -3275,9 +3567,42 @@ function drawAxoFigure(ctx, x, y, p, o){
   ctx.restore();
 }
 
+/* the player's axolotl gets a light outline so you can find yourself at a
+   glance, even in the dark: drawn once to a small buffer, then stamped
+   around itself in a pale tint, then drawn on top */
+const axoBuf = document.createElement('canvas'), axoTint = document.createElement('canvas');
+function drawAxoOutlined(x, y, pose, o){
+  const half = Math.ceil(o.R * 2.6), size = half * 2;
+  const dev = Math.ceil(size * dpr);
+  if(axoBuf.width !== dev){ axoBuf.width = axoBuf.height = axoTint.width = axoTint.height = dev; }
+  const g = axoBuf.getContext('2d'), t = axoTint.getContext('2d');
+  if(!g || !t || !g.setTransform){ drawAxoFigure(ctx, x, y, pose, o); return; }
+  g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, dev, dev);
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  drawAxoFigure(g, half, half, pose, o);
+  t.globalCompositeOperation = 'copy'; t.drawImage(axoBuf, 0, 0);
+  t.globalCompositeOperation = 'source-in';
+  t.fillStyle = tankDark() ? '#fff4fb' : 'rgba(255,240,248,.95)'; t.fillRect(0, 0, dev, dev);
+  t.globalCompositeOperation = 'source-over';
+  ctx.save();
+  ctx.globalAlpha = (tankDark() ? 0.9 : 0.6) * (o.dying ? Math.max(0.15, o.k) : 1);
+  const w = tankDark() ? 2.2 : 1.6;                // outline thickness, in tank pixels
+  for(let i = 0; i < 8; i++){
+    const a = i * Math.PI / 4;
+    ctx.drawImage(axoTint, x - half + Math.cos(a)*w, y - half + Math.sin(a)*w, size, size);
+  }
+  ctx.restore();
+  ctx.drawImage(axoBuf, x - half, y - half, size, size);
+}
+/* a big sprite half way through a side tunnel shows on both sides */
+function acrossTunnel(x, half, draw){
+  draw(x);
+  if(x - half < 0) draw(x + W);
+  else if(x + half > W) draw(x - W);
+}
 function drawAxolotl(){
   const p = player, pos = posOf(p);
-  const R = TILE*0.46;
+  const SC = SPRITE_SCALE.axolotl, R = TILE*0.46*SC;
   const dying = state === 'dying';
   const k = dying ? Math.max(0, stateTimer/1.9) : 1;
   const powered = frightTimer > 0;
@@ -3289,7 +3614,7 @@ function drawAxolotl(){
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
   ctx.globalAlpha = (powered ? 0.75 : 0.4) * k;
-  const gs = TILE * (powered ? 3.2 : 2.4);
+  const gs = TILE * (powered ? 3.2 : 2.4) * SC;
   ctx.drawImage(glowSprite(axoVariant.pal.glow), pos.x - gs/2, pos.y - gs/2, gs, gs);
   ctx.restore();
 
@@ -3306,12 +3631,12 @@ function drawAxolotl(){
     grow = 1 + (grow - 1) * calm;
   }
 
-  drawAxoFigure(ctx, pos.x, pos.y + bobY, p,
-    {R, k, dying, powered, moving, calm, celebrate, sx, sy, grow, pal:axoVariant.pal});
+  const o = {R, k, dying, powered, moving, calm, celebrate, sx, sy, grow, pal:axoVariant.pal};
+  acrossTunnel(pos.x, R*2.5, x => drawAxoOutlined(x, pos.y + bobY, p, o));
 
   // power mode: golden glitter
   if(powered && !reduceMotion && Math.random() < 0.5){
-    particles.push({x:pos.x + (Math.random() - .5)*TILE*1.2, y:pos.y + (Math.random() - .5)*TILE, vx:0, vy:-12,
+    particles.push({x:pos.x + (Math.random() - .5)*TILE*1.2*SC, y:pos.y + (Math.random() - .5)*TILE*SC, vx:0, vy:-12,
                     t:0.6, life:0.6, colour:Math.random() < 0.5 ? '#ffd34d' : '#fff3b0', r:0.8 + Math.random(), star:true});
   }
 
@@ -3322,9 +3647,9 @@ function drawAxolotl(){
       ctx.save();
       ctx.lineCap = 'round';
       ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.arc(pos.x, pos.y, TILE*0.78, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(pos.x, pos.y, TILE*0.78*SC, 0, Math.PI*2); ctx.stroke();
       ctx.strokeStyle = '#ff6f9c'; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.arc(pos.x, pos.y, TILE*0.78, -Math.PI/2, -Math.PI/2 + Math.PI*2*left); ctx.stroke();
+      ctx.beginPath(); ctx.arc(pos.x, pos.y, TILE*0.78*SC, -Math.PI/2, -Math.PI/2 + Math.PI*2*left); ctx.stroke();
       ctx.restore();
     }
   }
@@ -3555,7 +3880,7 @@ function drawFish(f){
   // tank cleared: the fish slip away
   const away = state === 'cleared' ? Math.max(0, (stateTimer - 1.8) / 0.8) : 1;
   if(away <= 0) return;
-  const R = TILE*0.45;
+  const SC = SPRITE_SCALE.fish, R = TILE*0.45*SC;
   const frightened = frightTimer > 0 && f.state === 'hunt';
   const blinking = frightened && frightTimer < 2 && Math.floor(frightTimer*BLINK_HZ) % 2 === 0;
   const calm = reduceMotion ? 0.35 : 1;
@@ -3566,9 +3891,14 @@ function drawFish(f){
   if(frightened && !reduceMotion) jx = Math.sin(clock*55 + f.idx)*1.4;            // trembling
   else if(f.idx === 2 && !reduceMotion){ jx = Math.sin(clock*23)*0.6; bobY += Math.sin(clock*17)*0.7; }   // piranha jitters
 
+  acrossTunnel(q.x + jx, R*1.8, x => drawFishAt(f, x, q.y + bobY, R, away, frightened, blinking, body, calm));
+  if(f.surprise > 0) drawSurprise(q.x, q.y - TILE*0.75*SC, f.surprise);
+}
+function drawFishAt(f, x, y, R, away, frightened, blinking, body, calm){
+  const SC = R / (TILE*0.45);
   ctx.save();
   ctx.globalAlpha = away;
-  ctx.translate(q.x + jx, q.y + bobY);
+  ctx.translate(x, y);
   ctx.scale(f.hs, 1);
   ctx.rotate(f.pitch);
 
@@ -3590,14 +3920,13 @@ function drawFish(f){
   if(frightened){
     // a pale halo marks edible fish by brightness as well as colour
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = blinking ? 0.25 : 0.5;
-    ctx.drawImage(glowSprite('rgba(220,248,255,.9)'), -TILE*1.1, -TILE*0.9, TILE*2.2, TILE*1.8);
+    ctx.drawImage(glowSprite('rgba(220,248,255,.9)'), -TILE*1.1*SC, -TILE*0.9*SC, TILE*2.2*SC, TILE*1.8*SC);
     ctx.restore();
   }
   const st = FISH_STYLE[f.idx];
   const wag = Math.sin(f.wag) * st.amp * (0.4 + 0.6*calm);
   FISH_DRAW[f.idx](f, R, body, frightened, wag, false);
   ctx.restore();
-  if(f.surprise > 0) drawSurprise(q.x, q.y - TILE*0.75, f.surprise);
 }
 /* "!" pops up over a fish the moment a bloodworm turns the tables */
 function drawSurprise(x, y, t){
@@ -3621,6 +3950,7 @@ function drawShrimpBonus(x, y, t){
   const fade = t < 2 ? (Math.floor(t*6)%2 ? 0.35 : 1) : 1;
   ctx.save();
   ctx.translate(x, y);
+  ctx.scale(SPRITE_SCALE.fish, SPRITE_SCALE.fish);
   ctx.globalAlpha = fade;
   ctx.rotate(Math.sin(clock*2)*0.25);
   ctx.strokeStyle = '#ffb08a'; ctx.lineWidth = 4; ctx.lineCap = 'round';
@@ -3757,21 +4087,21 @@ function drawStateText(){
     const ease = reduceMotion ? 1 : Math.min(1, age / 0.35);
     const pop = 1 - Math.pow(1 - ease, 3);
     ctx.globalAlpha = ease;
-    ctx.translate(W/2, centre(13)); ctx.scale(0.85 + 0.15*pop, 0.85 + 0.15*pop); ctx.translate(-W/2, -centre(13));
+    ctx.translate(W/2, centre(LAYOUT.cardRow)); ctx.scale(0.85 + 0.15*pop, 0.85 + 0.15*pop); ctx.translate(-W/2, -centre(LAYOUT.cardRow));
     const lines = [
       {text:'TANK ' + level + ' · ' + hab.name.toUpperCase(), px:22, weight:400, family:DISPLAY, colour:'#ffc3de', wobble:true},
       {text:hab.hint, px:15, weight:500, family:BODY, colour:hab.edge}];
     if(mode === 'daily') lines.push(
       {text:'DAILY · ' + daily.rule.name.toUpperCase(), px:22, weight:400, family:DISPLAY, colour:'#ffd34d'},
       {text:daily.rule.desc, px:15, weight:500, family:BODY, colour:'#ffffff'});
-    drawCard(lines, centre(13) + 20*T, 540);
+    drawCard(lines, centre(LAYOUT.cardRow) + 20*T, 540);
     // on the first tank, introduce the fish by name
     if(level === 1){
       ctx.font = '700 ' + Math.round(12*T) + 'px ' + BODY;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
       for(const f of fish){
         const q = posOf(f);
-        const y = q.y + (f.idx < 2 ? -18*T : 20*T);
+        const y = q.y + (f.idx < 2 ? -18*T : 20*T) * SPRITE_SCALE.fish;
         ctx.lineWidth = 3.5; ctx.strokeStyle = 'rgba(3,10,18,.9)'; ctx.strokeText(f.name, q.x, y);
         ctx.fillStyle = f.colour; ctx.fillText(f.name, q.x, y);
       }
@@ -3783,8 +4113,8 @@ function drawStateText(){
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
     ctx.font = '400 ' + Math.round(17*T) + 'px ' + DISPLAY;
     ctx.globalAlpha = Math.min(1, (1.9 - stateTimer));
-    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(3,10,18,.9)'; ctx.strokeText('REGENERATING', W/2, centre(13));
-    ctx.fillStyle = '#9be7ff'; ctx.fillText('REGENERATING', W/2, centre(13));
+    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(3,10,18,.9)'; ctx.strokeText('REGENERATING', W/2, centre(LAYOUT.cardRow));
+    ctx.fillStyle = '#9be7ff'; ctx.fillText('REGENERATING', W/2, centre(LAYOUT.cardRow));
     ctx.restore();
   }
   if(state === 'cleared'){
@@ -3794,7 +4124,7 @@ function drawStateText(){
     const shown = Math.round(clearBonusShown * Math.min(1, Math.max(0, (age - 0.2) / 0.8)));
     ctx.save();
     ctx.globalAlpha = pop;
-    ctx.translate(W/2, centre(13)); ctx.scale(k, k); ctx.translate(-W/2, -centre(13));
+    ctx.translate(W/2, centre(LAYOUT.cardRow)); ctx.scale(k, k); ctx.translate(-W/2, -centre(LAYOUT.cardRow));
     const lines = [
       {text:'TANK CLEARED!', px:38, weight:400, family:DISPLAY, colour:'#ffe4a8', stroke:true},
       {text:'BONUS +' + shown.toLocaleString('en-GB'), px:22, weight:400, family:DISPLAY, colour:'#ff9ac4', stroke:true}];
@@ -3804,7 +4134,7 @@ function drawStateText(){
       lines.push({text:b.name + ' +' + b.value.toLocaleString('en-GB'), px:19, weight:400, family:DISPLAY,
                   colour:on ? '#ffd34d' : 'rgba(0,0,0,0)', stroke:on});
     });
-    drawCard(lines, centre(13) + 10*T, 420);
+    drawCard(lines, centre(LAYOUT.cardRow) + 10*T, 420);
     ctx.restore();
   }
 }
@@ -3820,6 +4150,7 @@ window.addEventListener('keydown', e => {
   const dir = KEYMAP[e.key];
   if(dir && (state === 'playing' || state === 'ready')){ e.preventDefault(); requestDir(dir); return; }
   if(e.key === 'p' || e.key === 'P' || e.key === 'Escape'){ e.preventDefault(); togglePause(); return; }
+  if(e.key === 'm' || e.key === 'M'){ e.preventDefault(); toggleSound(); if(state === 'paused') showPause(); return; }
   if((e.key === ' ' || e.key === 'Enter') && overlay.classList.contains('on') && tag !== 'BUTTON'){
     const first = overlay.querySelector('[data-default]') || ovActions.querySelector('button');
     if(first){ e.preventDefault(); first.click(); }
@@ -3832,78 +4163,149 @@ document.querySelectorAll('.pad button').forEach(b => {
   b.addEventListener('contextmenu', e => e.preventDefault());
 });
 
-/* swipe anywhere in the play area (not just on the tank). A short swipe
-   steers; keep the finger down and swipe again to turn again. Menus are
-   left alone so their buttons and scrolling still work. */
+/* swipe anywhere on the screen, not just on the tank, so hands needn't cover
+   the maze. The direction is read while the finger moves (16px is enough);
+   keep the finger down and swipe again to turn again. The turn is buffered
+   (player.next) and taken at the next opening. Swipes that start on a
+   button, and anything while a menu is open, are left alone. */
 let touchStart = null;
 const SWIPE = 16;
-stageEl.addEventListener('pointerdown', e => {
-  if(overlay.classList.contains('on')) return;
-  touchStart = {x:e.clientX, y:e.clientY};
-  if(e.pointerType !== 'mouse') e.preventDefault();
-}, {passive:false});
-stageEl.addEventListener('pointermove', e => {
-  if(!touchStart || overlay.classList.contains('on')) return;
+const onControl = t => !!(t && t.closest && t.closest('button, input, a, .overlay.on'));
+window.addEventListener('pointerdown', e => {
+  touchStart = null;
+  if(overlay.classList.contains('on') || onControl(e.target)) return;
+  if(e.pointerType === 'mouse' && e.button !== 0) return;
+  touchStart = {x:e.clientX, y:e.clientY, id:e.pointerId};
+}, {passive:true});
+window.addEventListener('pointermove', e => {
+  if(!touchStart || e.pointerId !== touchStart.id || overlay.classList.contains('on')) return;
   const dx = e.clientX - touchStart.x, dy = e.clientY - touchStart.y;
   if(Math.abs(dx) < SWIPE && Math.abs(dy) < SWIPE) return;
   requestDir(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
-  touchStart = {x:e.clientX, y:e.clientY};
-  e.preventDefault();
-}, {passive:false});
+  touchStart = {x:e.clientX, y:e.clientY, id:e.pointerId};
+}, {passive:true});
 for(const ev of ['pointerup', 'pointercancel']) window.addEventListener(ev, () => { touchStart = null; });
-stageEl.addEventListener('touchmove', e => { if(!overlay.classList.contains('on')) e.preventDefault(); }, {passive:false});
+/* belt and braces for browsers that ignore touch-action: no scrolling, pinching
+   or double-tap zoom outside the menus, and no long-press menu on the game */
+const inMenu = t => !!(t && t.closest && t.closest('.overlay.on'));
+document.addEventListener('touchmove', e => { if(!inMenu(e.target) && e.cancelable) e.preventDefault(); }, {passive:false});
+document.addEventListener('gesturestart', e => e.preventDefault(), {passive:false});
+document.addEventListener('dblclick', e => e.preventDefault(), {passive:false});
+document.addEventListener('contextmenu', e => { if(!(e.target && e.target.closest && e.target.closest('input'))) e.preventDefault(); });
 
+const ICON = {
+  pause:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z" fill="currentColor"/></svg>',
+  play:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4.8v14.4L19.5 12z" fill="currentColor"/></svg>',
+  sound:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9v6h4l5 4.2V4.8l-5 4.2z" fill="currentColor"/>' +
+        '<path d="M15.5 8.6a4.8 4.8 0 0 1 0 6.8M18.2 6a8.6 8.6 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  mute:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9v6h4l5 4.2V4.8l-5 4.2z" fill="currentColor"/>' +
+       '<path d="m16 9.5 5 5m0-5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+};
+/* one button: pause while swimming, play from the title or game over, resume when paused */
+function refreshPauseBtn(){
+  const label = state === 'paused' ? 'Resume' : state === 'title' || state === 'over' ? 'Play' : 'Pause';
+  pauseBtn.innerHTML = label === 'Pause' ? ICON.pause : ICON.play;
+  pauseBtn.setAttribute('aria-label', label); pauseBtn.title = label + ' (P)';
+}
+function refreshSoundBtn(){
+  soundBtn.innerHTML = soundOn ? ICON.sound : ICON.mute;
+  soundBtn.setAttribute('aria-pressed', String(soundOn));
+  soundBtn.setAttribute('aria-label', soundOn ? 'Sound on' : 'Sound off'); soundBtn.title = (soundOn ? 'Sound on' : 'Sound off') + ' (M)';
+}
+/* the pause menu also holds the settings: speed, sound and the D-pad */
+let pauseReason = '';
+function showPause(){
+  const auto = pauseReason === 'away' || pauseReason === 'turned';
+  const btns = [{label:auto ? 'Tap to resume' : 'Keep swimming', fn:togglePause, primary:true}];
+  if(mode === 'classic') btns.push({label:SPEEDS[speedChoice].label, fn:() => { cycleSpeed(); showPause(); }, small:true});
+  btns.push({label:soundOn ? 'Sound on' : 'Sound off', fn:() => { toggleSound(); showPause(); }, small:true});
+  if(inputMode === 'touch') btns.push({label:dpadOn ? 'Hide D-pad' : 'Show D-pad', fn:() => { setDpad(!dpadOn); showPause(); }, small:true});
+  const why = pauseReason === 'away' ? 'Paused while you were away.' : pauseReason === 'turned' ? 'Paused while the screen changed.' : 'The tank holds its breath.';
+  showOverlay('Paused', why + (mode === 'daily' ? ' Daily challenges are always Normal speed.' : ''), btns);
+  if(auto) overlay.classList.add('tap-resume');
+}
+/* an automatic pause (tab hidden, screen turned or resized) resumes with a
+   tap anywhere on the card, not only on the button */
+overlay.addEventListener('click', e => {
+  if(state === 'paused' && overlay.classList.contains('tap-resume') && e.target === overlay){ audio(); togglePause(); }
+});
+function autoPause(reason){
+  if(state !== 'playing' && state !== 'ready') return;
+  pauseReason = reason; togglePause();
+}
+/* pausing works during the countdown too, and resumes where it left off */
+let pausedFrom = null;
 function togglePause(){
-  if(state === 'playing'){
+  if(state === 'playing' || state === 'ready'){
+    pausedFrom = {state, timer:stateTimer, total:stateTotal};
     setState('paused', 0);
-    showOverlay('Paused', 'The tank holds its breath.', [{label:'Keep swimming', fn:togglePause, primary:true}]);
-    pauseBtn.textContent = 'Resume';
+    showPause();
+    pauseReason = '';
   } else if(state === 'paused'){
-    setState('playing', 0);
-    pauseBtn.textContent = 'Pause';
+    const from = pausedFrom || {state:'playing', timer:0, total:0};
+    pausedFrom = null;
+    setState(from.state, from.timer); stateTotal = from.total;
   }
 }
 pauseBtn.addEventListener('click', () => {
   if(state === 'title') swim(); else if(state === 'over') startGame(); else togglePause();
   pauseBtn.blur();
 });
-function refreshSpeedBtn(){
-  const locked = mode === 'daily' && state !== 'title';
-  speedBtn.textContent = locked ? 'Speed: daily' : SPEEDS[speedChoice].label;
-  speedBtn.title = locked ? 'Daily challenges are always played at Normal speed so scores are fair' : '';
-}
 function cycleSpeed(){
-  if(mode === 'daily' && state !== 'over' && state !== 'title'){ refreshSpeedBtn(); return; }
+  if(mode === 'daily' && state !== 'over' && state !== 'title') return;    // daily runs are always Normal
   if(state === 'over') mode = 'classic';
   speedChoice = (speedChoice + 1) % SPEEDS.length;
   if(mode === 'classic' && state !== 'over' && state !== 'title') runSpeed = Math.min(runSpeed, speedChoice);
-  refreshSpeedBtn(); updateHud();
+  updateHud();
   try{ localStorage.setItem('axolotl-chase:speed', String(speedChoice)); }catch(e){}
 }
-speedBtn.addEventListener('click', cycleSpeed);
-soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off';
-soundBtn.setAttribute('aria-pressed', String(soundOn));
-if(window.matchMedia('(pointer: coarse)').matches){
-  const keys = document.querySelector('.keys');
-  if(keys) keys.textContent = 'Swipe anywhere to steer \u00b7 or use the pad';
-}
-soundBtn.addEventListener('click', () => {
+function toggleSound(){
   soundOn = !soundOn;
   store.set('sound', soundOn);
-  soundBtn.textContent = soundOn ? 'Sound on' : 'Sound off';
-  soundBtn.setAttribute('aria-pressed', String(soundOn));
+  refreshSoundBtn();
   if(!soundOn){ silenceAmbience(); if(actx && actx.suspend) actx.suspend(); }
   else { ambWant = -1; sfxClick(); }
-});
+}
+soundBtn.addEventListener('click', () => { toggleSound(); soundBtn.blur(); });
+
+/* full screen, where the browser allows it for a page (Android Chrome,
+   iPadOS Safari, desktops). iPhone Safari only allows it for video, so the
+   button stays hidden there; added to the home screen it opens full screen anyway. */
+const fsBtn = byId('fsBtn');
+const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+const fsOK = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled) && !mq('(display-mode: fullscreen)') && !mq('(display-mode: standalone)');
+ICON.fsOn = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+ICON.fsOff = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function refreshFsBtn(){
+  if(!fsBtn) return;
+  const on = !!fsEl();
+  fsBtn.innerHTML = on ? ICON.fsOff : ICON.fsOn;
+  fsBtn.setAttribute('aria-label', on ? 'Leave full screen' : 'Full screen'); fsBtn.title = on ? 'Leave full screen' : 'Full screen';
+}
+if(fsBtn && fsOK){
+  fsBtn.hidden = false; refreshFsBtn();
+  fsBtn.addEventListener('click', () => {
+    const root = document.documentElement;
+    try{
+      if(fsEl()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      else{
+        const go = root.requestFullscreen || root.webkitRequestFullscreen;
+        const r = go && go.call(root, {navigationUI:'hide'});
+        if(r && r.catch) r.catch(() => {});
+      }
+    }catch(e){}
+    fsBtn.blur();
+  });
+  for(const ev of ['fullscreenchange', 'webkitfullscreenchange']) document.addEventListener(ev, () => { refreshFsBtn(); queueFit(); });
+}
 document.addEventListener('visibilitychange', () => {
   if(document.hidden){ saveStats(); silenceAmbience(); }
-  if(document.hidden && state === 'playing') togglePause();
+  if(document.hidden) autoPause('away');
 });
 
 /* ----------------------------- boot ---------------------------- */
 resetGrid(); placeActors(); drawLives(); updateHud();
-refreshSpeedBtn();
-pauseBtn.textContent = 'Play';                    // the game opens on the title screen
+refreshPauseBtn(); refreshSoundBtn();
 showTitle();
 requestAnimationFrame(frame);
 
