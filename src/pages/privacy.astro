@@ -3,15 +3,16 @@ import Page from '../layouts/Page.astro';
 import { COMPANY, CONTACT_EMAIL, SITE_TITLE } from '../consts';
 ---
 
-<Page title={`Privacy — ${SITE_TITLE}`} description="How Bioluma Labs handles privacy on this website and in our games and apps, including optional ads in the Capy Sports Club app.">
+<Page title={`Privacy — ${SITE_TITLE}`} description="How Bioluma Labs handles privacy on this website and in our games and apps, including optional ads and purchases in our apps.">
 	<h1>Privacy</h1>
 	<p class="lede">
 		The short version: we don't collect your data. There are no accounts and no tracking, on this
 		website or in our games and apps. This website and the games you play on it have no ads. The
 		app versions of Capy Sports Club show optional ads, only when a player chooses to watch one;
-		<a href="#capy-sports-club-app">details below</a>.
+		<a href="#capy-sports-club-app">details below</a>. The Axolotl Chase app has no ads and offers one
+		optional purchase; <a href="#axolotl-chase-app">details below</a>.
 	</p>
-	<p class="updated">Last updated 30 September 2026</p>
+	<p class="updated">Last updated 4 October 2026</p>
 
 	<h2>What we don't do</h2>
 	<ul>
@@ -70,6 +71,24 @@ import { COMPANY, CONTACT_EMAIL, SITE_TITLE } from '../consts';
 		or Google, plus basic technical information such as the device type. It doesn't receive any
 		payment details.
 	</p>
+
+	<h2 id="axolotl-chase-app">Purchases in the Axolotl Chase app</h2>
+	<p>
+		The Axolotl Chase app (coming to the App Store and Google Play) has no ads. It offers one optional
+		purchase, Axolotl Chase Deluxe, which adds extra axolotls, tanks and ways to play. Deluxe is only in
+		the app; the game you play on this website stays free and unchanged.
+	</p>
+	<ul>
+		<li>A grown-up has to answer a simple question before any purchase can start.</li>
+		<li>Payment is handled entirely by Apple or Google; we never see payment details.</li>
+		<li>
+			If a purchase is made, it's recorded by RevenueCat, just as <a href="#capy-sports-club-app">in Capy
+			Sports Club</a>: RevenueCat checks that the purchase is genuine and restores it on a new device or
+			after reinstalling. It receives a random ID created by the app (not linked to a name, email or
+			account) and the purchase record from Apple or Google, plus basic technical information such as the
+			device type. It doesn't receive any payment details.
+		</li>
+	</ul>
 
 	<h2>Hosting</h2>
 	<p>
