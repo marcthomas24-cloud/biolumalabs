@@ -3,15 +3,16 @@ import Page from '../layouts/Page.astro';
 import { COMPANY, CONTACT_EMAIL, SITE_TITLE } from '../consts';
 ---
 
-<Page title={`Privacy — ${SITE_TITLE}`} description="How Bioluma Labs handles privacy on this website and in our games and apps, including optional ads in the Capy Sports Club app.">
+<Page title={`Privacy — ${SITE_TITLE}`} description="How Bioluma Labs handles privacy on this website and in our games and apps, including optional ads in the Capy Sports Club app and the optional purchase in the Axolotl Chase app.">
 	<h1>Privacy</h1>
 	<p class="lede">
 		The short version: we don't collect your data. There are no accounts and no tracking, on this
 		website or in our games and apps. This website and the games you play on it have no ads. The
 		app versions of Capy Sports Club show optional ads, only when a player chooses to watch one;
-		<a href="#capy-sports-club-app">details below</a>.
+		<a href="#capy-sports-club-app">details below</a>. The Axolotl Chase app has no ads and
+		one optional purchase; <a href="#axolotl-chase-app">details below</a>.
 	</p>
-	<p class="updated">Last updated 30 September 2026</p>
+	<p class="updated">Last updated 7 October 2026</p>
 
 	<h2>What we don't do</h2>
 	<ul>
@@ -69,6 +70,36 @@ import { COMPANY, CONTACT_EMAIL, SITE_TITLE } from '../consts';
 		ID created by the app (not linked to a name, email or account) and the purchase record from Apple
 		or Google, plus basic technical information such as the device type. It doesn't receive any
 		payment details.
+	</p>
+
+	<h2 id="axolotl-chase-app">The Axolotl Chase app</h2>
+	<p>
+		The Axolotl Chase app (coming to the App Store and Google Play) has no ads, no accounts and no
+		tracking. The game on this website is the same: nothing is collected.
+	</p>
+	<p>
+		The app offers one optional purchase, Axolotl Chase Deluxe, which adds extra axolotls, tanks and
+		modes. A grown-up has to answer a simple question before any purchase can start. Payment is
+		handled entirely by Apple or Google; we never see payment details.
+	</p>
+	<p>
+		If a purchase is made, it's recorded by RevenueCat, a service we use to check that the purchase
+		is genuine and to restore it on a new device or after reinstalling. RevenueCat receives a random
+		ID created by the app (not linked to a name, email or account) and the purchase record from Apple
+		or Google, plus basic technical information such as the device type. It doesn't receive any
+		payment details. This information is sent over an encrypted connection and is used only to make
+		the purchase work.
+	</p>
+
+	<h2 id="delete">Deleting your data</h2>
+	<p>
+		Scores, settings and unlocked characters are stored only on your device, so deleting the app (or
+		clearing the site's data in your browser) removes them. The only information we can ask a
+		service to delete is a purchase record held by RevenueCat. To have it deleted, email
+		<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> and we'll arrange it. Because the
+		record is tied to a random ID rather than your name, tell us which app and approximately when you
+		made the purchase, and include the order number from your Apple or Google receipt if you can.
+		Deleting it means a purchase can no longer be restored on a new device.
 	</p>
 
 	<h2>Hosting</h2>
