@@ -65,6 +65,20 @@ export const PRODUCTS: Product[] = [
 		googlePlay: "",
 	},
 	{
+		id: "capy-boarder",
+		name: "CapyBoarder",
+		kind: "Game",
+		tagline: "Skate. Flip. Smile.",
+		summary:
+			"Capy's grabbed a skateboard and gone full send! Kickflip off ramps, grind rails and pull grabs all the way through the Skatepark, City Streets and Beach Boardwalk. Chase three stars on every course, ride endless mode for a new best, and deck Capy out in wild boards, hats and flame trails.",
+		icon: "/icons/capy-boarder.png",
+		art: "/art/capy-boarder.webp",
+		artAlt: "The CapyBoarder title screen: Capy the capybara on a purple skateboard between two green ramps under a sunny sky, below the CapyBoarder logo and the tagline 'Skate. Flip. Smile.'",
+		playUrl: "/capy-boarder/",
+		appStore: "",
+		googlePlay: "",
+	},
+	{
 		id: "axolotl-chase",
 		name: "Axolotl Chase",
 		kind: "Game",
