@@ -1,6 +1,6 @@
 {
 	"name": "biolumalabs",
-	"description": "Bioluma Labs studio website.",
+	"description": "BioLuma Labs studio website.",
 	"dependencies": {
 		"@astrojs/cloudflare": "12.6.12",
 		"@astrojs/mdx": "4.3.13",

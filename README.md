@@ -1,6 +1,6 @@
 # biolumalabs.com
 
-The Bioluma Labs studio site. Astro, prerendered to static HTML and served by Cloudflare Workers.
+The BioLuma Labs studio site. Astro, prerendered to static HTML and served by Cloudflare Workers.
 It has no client-side JavaScript, no web fonts and no third-party requests.
 
 | page | source |
@@ -21,4 +21,4 @@ npm run deploy    # wrangler deploy
 
 `public/og.jpg` is the 1200×630 share image (social sites don't render SVG).
 
-© 2026 Diamond Hands Ltd, trading as Bioluma Labs. All rights reserved.
+© 2026 Diamond Hands Ltd, trading as BioLuma Labs. All rights reserved.
