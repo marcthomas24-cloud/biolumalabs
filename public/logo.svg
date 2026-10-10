@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="380" height="260" viewBox="0 0 380 260" role="img"><title>Bioluma Labs</title><desc>A stylized axolotl head with glowing bioluminescent gill fronds, with the wordmark Bioluma Labs beneath it.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="380" height="260" viewBox="0 0 380 260" role="img"><title>BioLuma Labs</title><desc>A stylized axolotl head with glowing bioluminescent gill fronds, with the wordmark BioLuma Labs beneath it.</desc>
 <defs>
 <radialGradient id="glow" cx="50%" cy="50%" r="50%">
 <stop offset="0%" stop-color="#7CF5D0" stop-opacity="0.55"/>
@@ -35,6 +35,6 @@
 </g>
 <circle class="eye" cx="172" cy="88" r="3.5"/>
 <circle class="eye" cx="208" cy="88" r="3.5"/>
-<text x="190" y="196" text-anchor="middle" class="wordmain">Bioluma Labs</text>
+<text x="190" y="196" text-anchor="middle" class="wordmain">BioLuma Labs</text>
 <text x="190" y="216" text-anchor="middle" class="wordsub">GLOW • GROW • PLAY</text>
 </svg>
