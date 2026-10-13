@@ -60,9 +60,9 @@ export const PRODUCTS: Product[] = [
 		icon: "/icons/capy-sports-club.png",
 		art: "/art/capy-sports-club.webp",
 		artAlt: "Capy the capybara cheering with a basketball on an arena court, beside the Capy Sports Club logo",
-		playUrl: "/capy-sports-club/",
+		playUrl: "",
 		appStore: "",
-		googlePlay: "",
+		googlePlay: "https://play.google.com/store/apps/details?id=com.biolumalabs.capysportsclub",
 	},
 	{
 		id: "capy-boarder",
@@ -90,7 +90,6 @@ export const PRODUCTS: Product[] = [
 		artAlt: "A pink axolotl chasing two frightened fish through clear blue-green water, past a trail of golden shrimp",
 		playUrl: "/axolotl-chase/",
 		appStore: "",
-		googlePlay: "",
-		webOnly: true,
+		googlePlay: "https://play.google.com/store/apps/details?id=com.biolumalabs.axolotlchase",
 	},
 ];
