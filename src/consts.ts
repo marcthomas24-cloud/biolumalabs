@@ -47,9 +47,9 @@ export const PRODUCTS: Product[] = [
 		icon: "/icons/axolotl-odyssey.png",
 		art: "/art/axolotl-odyssey.webp",
 		artAlt: "The Axolotl Odyssey title screen: pink, gold and dark axolotls swimming under lily pads behind the game title and its Swim, Who goes east, How to play, Journal and Settings buttons",
-		playUrl: "/play/",
+		playUrl: "https://play.biolumalabs.com/",
 		appStore: "",
-		googlePlay: "",
+		googlePlay: "https://play.google.com/store/apps/details?id=com.biolumalabs.axolotlodyssey",
 	},
 	{
 		id: "capy-sports-club",
