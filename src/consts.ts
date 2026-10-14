@@ -85,7 +85,7 @@ export const PRODUCTS: Product[] = [
 			"Capy's grabbed a skateboard and gone full send! Kickflip off ramps, grind rails and pull grabs all the way through the Skatepark, City Streets, Beach Boardwalk, Snowy Peak and Wave Bay. Chase three stars on every course, ride endless mode for a new best, and deck Capy out in wild boards, hats and flame trails.",
 		icon: "/icons/capy-boarder.png",
 		art: "/art/capy-boarder.webp",
-		artAlt: "The CapyBoarder title screen: Capy the capybara on a purple skateboard between two green ramps under a sunny sky, below the CapyBoarder logo and the tagline 'Skate. Flip. Smile.'",
+		artAlt: "The CapyBoarder title screen: Capy the capybara on a purple skateboard between two ramps in a skatepark with palm trees against a purple and orange sunset, below the CapyBoarder logo and the tagline 'Skate. Flip. Smile.', above a yellow Play button",
 		playUrl: "/capy-boarder/",
 		appStore: "",
 		googlePlay: "",
