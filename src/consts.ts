@@ -70,6 +70,11 @@ export const PRODUCTS: Product[] = [
 		playUrl: "",
 		appStore: "",
 		googlePlay: "https://play.google.com/store/apps/details?id=com.biolumalabs.capysportsclub",
+		trailer: {
+			id: "W8dxbcYrKJ0",
+			title: "Capy Sports Club trailer",
+			poster: "/art/capy-sports-club-trailer.jpg",
+		},
 	},
 	{
 		id: "capy-boarder",
