@@ -33,7 +33,12 @@ const others = PRODUCTS.filter((p) => p !== featured);
 		{featured.trailer && <Trailer {...featured.trailer} />}
 		{others.length > 0 && (
 			<div class="grid">
-				{others.map((p) => <GameCard product={p} />)}
+				{others.map((p) => (
+					<div class="item">
+						<GameCard product={p} />
+						{p.trailer && <Trailer {...p.trailer} />}
+					</div>
+				))}
 			</div>
 		)}
 	</section>
