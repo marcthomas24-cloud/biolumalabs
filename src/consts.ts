@@ -33,6 +33,8 @@ export type Product = {
 	appStore: string;
 	googlePlay: string;
 	webOnly?: boolean;
+	// A YouTube trailer, shown under the card on the homepage (see Trailer.astro).
+	trailer?: { id: string; title: string; poster: string };
 };
 
 export const PRODUCTS: Product[] = [
@@ -50,6 +52,11 @@ export const PRODUCTS: Product[] = [
 		playUrl: "https://play.biolumalabs.com/",
 		appStore: "",
 		googlePlay: "https://play.google.com/store/apps/details?id=com.biolumalabs.axolotlodyssey",
+		trailer: {
+			id: "k4TxM0mbWEU",
+			title: "Axolotl Odyssey trailer",
+			poster: "/art/axolotl-odyssey-trailer.jpg",
+		},
 	},
 	{
 		id: "capy-sports-club",
