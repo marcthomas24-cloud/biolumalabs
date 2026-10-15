@@ -89,6 +89,11 @@ export const PRODUCTS: Product[] = [
 		playUrl: "/capy-boarder/",
 		appStore: "",
 		googlePlay: "",
+		trailer: {
+			id: "BnPLJr6GbwY",
+			title: "CapyBoarder trailer",
+			poster: "/art/capy-boarder-trailer.jpg",
+		},
 	},
 	{
 		id: "axolotl-chase",
