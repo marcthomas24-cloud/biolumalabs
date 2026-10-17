@@ -108,5 +108,10 @@ export const PRODUCTS: Product[] = [
 		playUrl: "/axolotl-chase/",
 		appStore: "",
 		googlePlay: "https://play.google.com/store/apps/details?id=com.biolumalabs.axolotlchase",
+		trailer: {
+			id: "W8-ubc10RHU",
+			title: "Axolotl Chase trailer",
+			poster: "/art/axolotl-chase-trailer.jpg",
+		},
 	},
 ];
