@@ -1,0 +1,10 @@
+---
+// Capy Sports Club used to be playable in the browser here. It's now on
+// Google Play, so send old links to its store listing.
+import { PRODUCTS } from '../consts';
+
+export const prerender = false;
+
+const game = PRODUCTS.find((p) => p.id === 'capy-sports-club');
+return Astro.redirect(game?.googlePlay || '/#games', 301);
+---
