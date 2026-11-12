@@ -33,9 +33,11 @@ page, the footer links, the sitemap and the search/social metadata are all gener
    | `shots/<slug>/1.webp` … | screenshots: 1280px wide (landscape) or 720px wide (portrait) |
    | `art/<slug>-trailer.jpg` | trailer thumbnail, 1280×720 (only if there is a trailer) |
 
-3. Store links: paste the listing URL once it is live. Until then leave it as `""` and the site
+3. For an upcoming title, set `release` (e.g. `"Christmas 2026"`) once it's announced. Its flags,
+   page title and notes then read "Coming Christmas 2026"; without it they say "Coming soon".
+4. Store links: paste the listing URL once it is live. Until then leave it as `""` and the site
    says "Coming soon to …" for that store.
-4. The homepage is curated by hand in `src/pages/index.astro`: games are grouped into families
+5. The homepage is curated by hand in `src/pages/index.astro`: games are grouped into families
    (the Axolotl family, Starring Capy) and the strongest artwork gets the biggest tile. A released
    game that isn't placed there still appears automatically under the Capy collection, so nothing
    is left out; move it into a family when you're ready.

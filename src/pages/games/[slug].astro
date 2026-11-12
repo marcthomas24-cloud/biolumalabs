@@ -7,7 +7,7 @@ import PlayPoster from '../../components/PlayPoster.astro';
 import ScreenshotRail from '../../components/ScreenshotRail.astro';
 import StoreLinks from '../../components/StoreLinks.astro';
 import { COMPANY, SITE_TITLE, SITE_URL } from '../../consts';
-import { GAMES, TANK_MORPHS, gameUrl } from '../../data/games';
+import { GAMES, TANK_MORPHS, gameUrl, soonLabel } from '../../data/games';
 import type { Game } from '../../data/games';
 
 export function getStaticPaths() {
@@ -27,7 +27,7 @@ const at = GAMES.indexOf(g);
 const related = [...GAMES.slice(at + 1), ...GAMES.slice(0, at)].slice(0, 3);
 
 const title = upcoming
-	? `${g.name}: coming soon from ${SITE_TITLE}`
+	? `${g.name}: coming ${g.release ?? 'soon'} from ${SITE_TITLE}`
 	: `${g.name}: ${g.genre.toLowerCase()} ${kind} by ${SITE_TITLE}`;
 const description = `${g.tagline} ${g.summary}`;
 
@@ -89,7 +89,7 @@ const jsonLd = [
 					<div class="ident">
 						{g.icon && <img class="icon" src={g.icon} width="88" height="88" alt="" />}
 						<p class="meta">
-							{upcoming && <span class="flag flag--soon">Coming soon</span>}
+							{upcoming && <span class="flag flag--soon">{soonLabel(g)}</span>}
 							{g.isNew && <span class="flag">New</span>}
 							<span class="genre">{g.genre}</span>
 						</p>
@@ -102,7 +102,11 @@ const jsonLd = [
 							{g.screenshots.length > 0 && (
 								<a class="btn btn--glow" href="#screenshots">See the first screenshots <span aria-hidden="true">↓</span></a>
 							)}
-							<p>In development. No release date yet: we'll share more here as it takes shape.</p>
+							<p>
+								{g.release
+									? `In development and coming ${g.release}. We'll share more here as it takes shape.`
+									: "In development. No release date yet: we'll share more here as it takes shape."}
+							</p>
 						</div>
 					) : (
 						<StoreLinks game={g} glow />

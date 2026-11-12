@@ -1,6 +1,6 @@
 ---
 import type { Game } from '../data/games';
-import { gameUrl } from '../data/games';
+import { gameUrl, soonLabel } from '../data/games';
 
 interface Props {
 	game: Game;
@@ -19,7 +19,7 @@ const where = [
 	<div class="art">
 		<img src={g.artSmall} alt="" width="800" height="450" loading="lazy" decoding="async" />
 		{g.isNew && <span class="flag">New</span>}
-		{upcoming && <span class="flag flag--soon">Coming soon</span>}
+		{upcoming && <span class="flag flag--soon">{soonLabel(g)}</span>}
 	</div>
 	<div class="body">
 		{g.icon && <img class="icon" src={g.icon} width="56" height="56" alt="" loading="lazy" decoding="async" />}

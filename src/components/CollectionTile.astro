@@ -5,7 +5,7 @@
 //   fill  - like m, but the artwork stretches to match its row (no fixed ratio)
 //   strip - a short, wide banner with the copy laid over the artwork
 import type { Game } from '../data/games';
-import { gameUrl } from '../data/games';
+import { gameUrl, soonLabel } from '../data/games';
 
 interface Props {
 	game: Game;
@@ -38,7 +38,7 @@ const where = [g.appStore && 'App Store', g.googlePlay && 'Google Play', g.playU
 		/>
 		{size !== 'strip' && (upcoming || g.isNew) && (
 			<p class="flags">
-				{upcoming && <span class="flag flag--soon">Coming soon</span>}
+				{upcoming && <span class="flag flag--soon">{soonLabel(g)}</span>}
 				{g.isNew && <span class="flag">New</span>}
 			</p>
 		)}
@@ -59,7 +59,7 @@ const where = [g.appStore && 'App Store', g.googlePlay && 'Google Play', g.playU
 	<div class="body">
 		{g.icon && <img class="icon" src={g.icon} width="64" height="64" alt="" loading="lazy" decoding="async" />}
 		<div class="text">
-			{size === 'strip' && upcoming && <p class="flags"><span class="flag flag--soon">Coming soon</span></p>}
+			{size === 'strip' && upcoming && <p class="flags"><span class="flag flag--soon">{soonLabel(g)}</span></p>}
 			<p class="genre">{g.genre}</p>
 			<h3><a href={href}>{g.name}</a></h3>
 			<p class="tagline">{g.tagline}</p>

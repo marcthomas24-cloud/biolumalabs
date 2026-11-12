@@ -34,6 +34,8 @@ export type Game = {
 	/** Short genre label shown on cards and pages. */
 	genre: string;
 	status: "released" | "upcoming";
+	/** For an upcoming title: when it's due, as people would say it, e.g. "Christmas 2026". Leave out if unannounced. */
+	release?: string;
 	/** Shows a "New" flag on cards. */
 	isNew?: boolean;
 	tagline: string;
@@ -412,6 +414,7 @@ export const GAMES: Game[] = [
 		kind: "Game",
 		genre: "Virtual pet & aquarium",
 		status: "upcoming",
+		release: "Christmas 2026",
 		tagline: "Your own little underwater world.",
 		summary:
 			"Discover, collect and care for wonderful axolotls as you create your own aquatic world.",
@@ -498,6 +501,9 @@ export const TANK_MORPHS = [
 ].map((m) => ({ ...m, src: `/art/tank-morphs/${m.id}.webp` }));
 
 export const gameUrl = (g: Game) => `/games/${g.slug}/`;
+
+/** The label for an upcoming title: "Coming Christmas 2026", or "Coming soon" if no date is announced. */
+export const soonLabel = (g: Game) => (g.release ? `Coming ${g.release}` : 'Coming soon');
 
 export const RELEASED = GAMES.filter((g) => g.status === "released");
 export const UPCOMING = GAMES.filter((g) => g.status === "upcoming");

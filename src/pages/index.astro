@@ -10,7 +10,7 @@ import {
 	SITE_TITLE,
 	SITE_URL,
 } from '../consts';
-import { GAMES, RELEASED, TANK_MORPHS, UPCOMING, WITH_TRAILERS, gameUrl } from '../data/games';
+import { GAMES, RELEASED, TANK_MORPHS, UPCOMING, WITH_TRAILERS, gameUrl, soonLabel } from '../data/games';
 
 const bySlug = (slug: string) => GAMES.find((g) => g.slug === slug)!;
 
@@ -99,7 +99,7 @@ const jsonLd = {
 				<div class="b-chase" data-reveal><CollectionTile game={axo.chase} size="hero" stretch focus="50% 40%" /></div>
 				<div class="b-odyssey" data-reveal><CollectionTile game={axo.odyssey} /></div>
 				<div class="b-colouring" data-reveal><CollectionTile game={axo.colouring} focus="0% 50%" /></div>
-				<div class="b-tank" data-reveal><CollectionTile game={tank} size="strip" href="#coming-soon" cta="Coming soon · see it below" focus="70% 45%" /></div>
+				<div class="b-tank" data-reveal><CollectionTile game={tank} size="strip" href="#coming-soon" cta="Take a first look below" focus="70% 45%" /></div>
 			</div>
 		</div>
 	</section>
@@ -142,7 +142,7 @@ const jsonLd = {
 			</div>
 			<div class="container soon-grid">
 				<div class="soon-copy" data-reveal>
-					<p class="soon-flags"><span class="flag flag--soon">Coming soon</span> <span class="soon-genre">{tank.genre}</span></p>
+					<p class="soon-flags"><span class="flag flag--soon">{soonLabel(tank)}</span> <span class="soon-genre">{tank.genre}</span></p>
 					<h2 id="tank-title" class="wordmark">Axolotl <span>Tank</span></h2>
 					<p class="soon-headline">{tank.tagline}</p>
 					<p class="soon-text">
@@ -613,6 +613,12 @@ const jsonLd = {
 		align-items: center;
 		gap: 0.75rem;
 		margin: 0 0 0.9rem;
+	}
+	/* The release date is the news here, so its badge is bigger than elsewhere. */
+	.soon-flags .flag {
+		padding: 0.35rem 0.95rem;
+		font-size: clamp(0.85rem, 0.75rem + 0.4vw, 1rem);
+		box-shadow: 0 6px 20px -6px rgba(255, 214, 107, 0.6);
 	}
 	.soon-genre {
 		color: var(--on-dark);
