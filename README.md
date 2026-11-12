@@ -33,18 +33,24 @@ page, the footer links, the sitemap and the search/social metadata are all gener
    | `shots/<slug>/1.webp` … | screenshots: 1280px wide (landscape) or 720px wide (portrait) |
    | `art/<slug>-trailer.jpg` | trailer thumbnail, 1280×720 (only if there is a trailer) |
 
-3. Store links: paste the listing URL once it is live. Until then leave it as `""` and the site
+3. For an upcoming title, set `release` (e.g. `"Christmas 2026"`) once it's announced. Its flags,
+   page title and notes then read "Coming Christmas 2026"; without it they say "Coming soon".
+4. Store links: paste the listing URL once it is live. Until then leave it as `""` and the site
    says "Coming soon to …" for that store.
-4. `featured: 1`, `2`, `3` … puts a game in the Featured section, in that order.
+5. The homepage is curated by hand in `src/pages/index.astro`: games are grouped into families
+   (the Axolotl family, Starring Capy) and the strongest artwork gets the biggest tile. A released
+   game that isn't placed there still appears automatically under the Capy collection, so nothing
+   is left out; move it into a family when you're ready.
 
 ## Where things are
 
 - Studio name, URLs and the contact address: `src/consts.ts`.
 - Colours, type and shared styles (buttons, chips, sections): `src/styles/global.css`.
-- Components: `src/components/` (`GameCard` for the catalogue, `FeatureCard` for the featured
-  section, `PlayPoster` + `MediaViewer` for trailers and the screenshot lightbox, `StoreLinks`).
+- Components: `src/components/` (`CollectionTile` for the homepage collections, `GameCard` for
+  "More from BioLuma Labs", `PlayPoster` + `MediaViewer` for trailers and the screenshot lightbox, `StoreLinks`).
 - `public/og.jpg` is the default 1200×630 share image (social sites don't render SVG).
-- The heading font is Fredoka (SIL Open Font License, see `public/fonts/OFL-Fredoka.txt`).
+- The heading font is Fredoka and the body font is Figtree (both SIL Open Font License, see
+  `public/fonts/OFL-Fredoka.txt` and `public/fonts/OFL-Figtree.txt`).
 
 ```bash
 npm install
