@@ -1,78 +1,184 @@
 ---
-import HeaderLink from './HeaderLink.astro';
 import { SITE_TITLE } from '../consts';
+
+const links = [
+	{ href: '/#games', label: 'Games' },
+	{ href: '/#coming-soon', label: 'Coming Soon' },
+	{ href: '/#about', label: 'About Us' },
+	{ href: '/#contact', label: 'Contact' },
+];
 ---
 
-<header>
-	<nav aria-label="Main">
-		<a class="brand" href="/">
-			<img src="/favicon.svg" width="36" height="36" alt="" />
-			<span>{SITE_TITLE}</span>
+<header class="site-header on-dark">
+	<nav class="bar" aria-label="Main">
+		<a class="brand" href="/" aria-label={`${SITE_TITLE} home`}>
+			<img src="/favicon.svg" width="40" height="40" alt="" />
+			<span>BioLuma <span class="labs">Labs</span></span>
 		</a>
-		<div class="links">
-			<HeaderLink href="/#games">Games</HeaderLink>
-			<HeaderLink href="/#about">About</HeaderLink>
-			<HeaderLink href="/support/">Support</HeaderLink>
-		</div>
+		<button class="toggle" type="button" aria-expanded="false" aria-controls="site-menu">
+			<span class="sr-only">Menu</span>
+			<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+				<path class="line top" d="M4 7h16" />
+				<path class="line mid" d="M4 12h16" />
+				<path class="line bot" d="M4 17h16" />
+			</svg>
+		</button>
+		<ul class="links" id="site-menu">
+			{links.map((l) => (
+				<li><a href={l.href}>{l.label}</a></li>
+			))}
+		</ul>
 	</nav>
 </header>
+
+<script>
+	const header = document.querySelector<HTMLElement>('.site-header');
+	const toggle = header?.querySelector<HTMLButtonElement>('.toggle');
+	const setOpen = (open: boolean) => {
+		header?.classList.toggle('open', open);
+		toggle?.setAttribute('aria-expanded', String(open));
+	};
+	toggle?.addEventListener('click', () => setOpen(!header?.classList.contains('open')));
+	header?.querySelectorAll('.links a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+	document.addEventListener('keydown', (e) => {
+		if (e.key === 'Escape' && header?.classList.contains('open')) {
+			setOpen(false);
+			toggle?.focus();
+		}
+	});
+</script>
+
 <style>
-	header {
-		border-bottom: 1px solid var(--line);
-		padding: 0 max(1rem, env(safe-area-inset-left));
+	.site-header {
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		background: rgba(7, 28, 46, 0.94);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
+		border-bottom: 1px solid var(--line-dark);
+		padding-inline: var(--gutter);
+		padding-top: env(safe-area-inset-top);
 	}
-	nav {
+	.bar {
+		position: relative;
 		max-width: var(--wide);
+		min-height: var(--header-h);
 		margin: 0 auto;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		gap: 1rem;
-		min-height: 3.75rem;
 	}
 	.brand {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
-		color: var(--ink);
-		font-weight: 650;
+		gap: 0.55rem;
+		min-height: 44px;
+		color: var(--on-dark);
+		font-family: var(--font-display);
+		font-size: 1.3rem;
+		font-weight: 600;
 		text-decoration: none;
-		letter-spacing: 0.01em;
 		white-space: nowrap;
 	}
+	.brand .labs {
+		color: var(--glow);
+	}
 	.brand img {
-		filter: drop-shadow(0 0 6px rgba(124, 245, 208, 0.35));
+		filter: drop-shadow(0 0 8px rgba(124, 245, 208, 0.35));
 	}
 	.links {
 		display: flex;
 		gap: 0.25rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
 	}
-	@media (max-width: 26rem) {
-		nav {
-			gap: 0.5rem;
+	.links li {
+		margin: 0;
+	}
+	.links a {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		padding: 0 0.95rem;
+		border-radius: 999px;
+		color: var(--on-dark-2);
+		font-weight: 600;
+		font-size: 0.98rem;
+		text-decoration: none;
+		transition: color 0.15s ease, background-color 0.15s ease;
+	}
+	.links a:hover {
+		color: #fff;
+		background: rgba(234, 251, 245, 0.08);
+	}
+	.toggle {
+		display: none;
+		align-items: center;
+		justify-content: center;
+		width: 48px;
+		height: 48px;
+		margin-right: -0.6rem;
+		padding: 0;
+		border: 0;
+		border-radius: 50%;
+		background: transparent;
+		color: var(--on-dark);
+		cursor: pointer;
+	}
+	.line {
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
+		stroke-linecap: round;
+		transform-box: fill-box;
+		transform-origin: center;
+		transition: transform 0.2s ease, opacity 0.2s ease;
+	}
+	.open .top {
+		transform: translateY(5px) rotate(45deg);
+	}
+	.open .mid {
+		opacity: 0;
+	}
+	.open .bot {
+		transform: translateY(-5px) rotate(-45deg);
+	}
+
+	/* Small screens: the links fold into a panel under the bar. Without
+	   JavaScript the button is hidden and the links simply wrap below. */
+	@media (max-width: 47.99rem) {
+		:global(.js) .toggle {
+			display: inline-flex;
 		}
-		.brand {
-			font-size: 0.95rem;
-		}
-		.brand img {
-			width: 30px;
-			height: 30px;
+		.bar {
+			flex-wrap: wrap;
 		}
 		.links {
+			flex-basis: 100%;
+			flex-wrap: wrap;
+			padding-bottom: 0.5rem;
+		}
+		:global(.js) .links {
+			display: none;
+			flex-direction: column;
 			gap: 0;
+			padding: 0.25rem 0 1rem;
+			border-top: 1px solid var(--line-dark);
 		}
-		.links :global(a) {
-			padding: 0 0.45rem;
-			font-size: 0.92rem;
+		:global(.js) .open .links {
+			display: flex;
 		}
-	}
-	@media (max-width: 22rem) {
-		.brand span {
-			position: absolute;
-			width: 1px;
-			height: 1px;
-			overflow: hidden;
-			clip: rect(0, 0, 0, 0);
+		:global(.js) .links a {
+			display: flex;
+			min-height: 52px;
+			padding: 0 0.5rem;
+			border-radius: var(--radius-s);
+			font-family: var(--font-display);
+			font-size: 1.2rem;
+			color: var(--on-dark);
 		}
 	}
 </style>

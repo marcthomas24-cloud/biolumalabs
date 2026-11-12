@@ -1,19 +1,68 @@
-/* BioLuma Labs — bioluminescent, dark only, system fonts, no JavaScript. */
+/* BioLuma Labs design system.
+   Deep navy and teal bookend every page (header, hero, footer); the content
+   in between sits on warm paper so each game's own artwork carries the colour. */
+
+@font-face {
+	font-family: "Fredoka";
+	font-style: normal;
+	font-weight: 300 700;
+	font-display: swap;
+	src: url("/fonts/fredoka-latin.woff2") format("woff2");
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+		U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+	font-family: "Fredoka";
+	font-style: normal;
+	font-weight: 300 700;
+	font-display: swap;
+	src: url("/fonts/fredoka-latin-ext.woff2") format("woff2");
+	unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+		U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
 
 :root {
-	--bg: #060a12;
-	--bg-2: #0b1622;
-	--card: rgba(14, 32, 42, 0.72);
-	--line: rgba(124, 245, 208, 0.14);
-	--ink: #eafbf5;
-	--muted: #a3bfc0;
+	/* Brand */
+	--navy-950: #051320;
+	--navy-900: #071c2e;
+	--navy-800: #0c2a42;
+	--navy-700: #133b58;
+	--teal-700: #0b6f73;
+	--teal-600: #0c8a8a;
+	--teal-500: #14a7a2;
 	--glow: #7cf5d0;
-	--teal: #5ee6be;
 	--pink: #f08fbb;
-	--pink-ink: #2a0b1b;
-	--wide: 64rem;
+	--pink-deep: #c9367d;
+
+	/* Surfaces and text on the light pages */
+	--paper: #faf7f0;
+	--paper-2: #f2ede2;
+	--surface: #ffffff;
+	--ink: #0b2236;
+	--ink-2: #46586a;
+	--line: rgba(11, 34, 54, 0.12);
+
+	/* Text on the dark surfaces */
+	--on-dark: #eafbf5;
+	--on-dark-2: #a9c4cc;
+	--line-dark: rgba(124, 245, 208, 0.16);
+
+	--accent: var(--teal-600);
+
+	--font-display: "Fredoka", ui-rounded, "Arial Rounded MT Bold", ui-sans-serif, system-ui, sans-serif;
+	--font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+	--radius-s: 0.75rem;
+	--radius: 1.25rem;
+	--radius-l: 2rem;
+	--shadow-1: 0 1px 2px rgba(11, 34, 54, 0.06), 0 6px 18px -8px rgba(11, 34, 54, 0.18);
+	--shadow-2: 0 2px 4px rgba(11, 34, 54, 0.06), 0 22px 44px -18px rgba(11, 34, 54, 0.35);
+
+	--wide: 76rem;
 	--measure: 42rem;
-	color-scheme: dark;
+	--gutter: max(1.25rem, env(safe-area-inset-left), env(safe-area-inset-right));
+	--header-h: 4rem;
+	color-scheme: light;
 }
 
 *,
@@ -34,51 +83,61 @@ body {
 	min-height: 100svh;
 	display: flex;
 	flex-direction: column;
-	background-color: var(--bg);
-	background-image:
-		radial-gradient(60rem 36rem at 50% -8rem, rgba(94, 230, 190, 0.13), transparent 70%),
-		radial-gradient(40rem 30rem at 100% 100%, rgba(240, 143, 187, 0.06), transparent 70%);
-	background-repeat: no-repeat;
+	background: var(--paper);
 	color: var(--ink);
-	font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-	font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+	font-family: var(--font-body);
+	font-size: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
 	line-height: 1.65;
 	overflow-wrap: break-word;
 }
 
-main.wide {
-	max-width: var(--wide);
-}
-
 [id] {
-	scroll-margin-top: 1.5rem;
+	scroll-margin-top: calc(var(--header-h) + 1rem);
 }
 
 main {
 	flex: 1;
 	width: 100%;
-	max-width: var(--measure);
+}
+
+/* The reading column used by Privacy, Support and 404. */
+main.prose {
+	max-width: calc(var(--measure) + 2 * var(--gutter));
 	margin: 0 auto;
-	padding: clamp(2rem, 6vw, 4rem) max(1rem, env(safe-area-inset-left)) 3rem;
+	padding: clamp(2.5rem, 6vw, 4.5rem) var(--gutter) 4rem;
+}
+
+.container {
+	width: 100%;
+	max-width: calc(var(--wide) + 2 * var(--gutter));
+	margin: 0 auto;
+	padding-inline: var(--gutter);
+}
+
+img {
+	max-width: 100%;
+	height: auto;
 }
 
 h1,
 h2,
 h3 {
-	line-height: 1.2;
-	margin: 0 0 0.6em;
-	font-weight: 700;
+	font-family: var(--font-display);
+	font-weight: 600;
+	line-height: 1.12;
 	letter-spacing: -0.01em;
+	margin: 0 0 0.6em;
+	text-wrap: balance;
 }
 h1 {
-	font-size: clamp(2rem, 1.5rem + 2.4vw, 2.9rem);
+	font-size: clamp(2.1rem, 1.5rem + 2.6vw, 3.25rem);
 }
 h2 {
-	font-size: clamp(1.3rem, 1.15rem + 0.8vw, 1.6rem);
+	font-size: clamp(1.4rem, 1.2rem + 0.9vw, 1.8rem);
 	margin-top: 2em;
 }
 h3 {
-	font-size: 1.1rem;
+	font-size: 1.15rem;
 }
 
 p,
@@ -91,70 +150,188 @@ li + li {
 }
 
 a {
-	color: var(--glow);
+	color: var(--teal-700);
 	text-underline-offset: 0.18em;
 	text-decoration-thickness: 1px;
 }
 a:hover {
-	text-shadow: 0 0 12px rgba(124, 245, 208, 0.55);
+	color: var(--teal-600);
+	text-decoration-thickness: 2px;
 }
-a:focus-visible,
-.button:focus-visible {
-	outline: 3px solid var(--glow);
+:focus-visible {
+	outline: 3px solid var(--teal-500);
 	outline-offset: 3px;
 	border-radius: 6px;
 }
-
-strong {
-	color: var(--ink);
+.on-dark :focus-visible,
+.on-dark:focus-visible {
+	outline-color: var(--glow);
 }
 
 .lede {
 	font-size: 1.15em;
-	color: var(--muted);
+	color: var(--ink-2);
 }
 .muted {
-	color: var(--muted);
+	color: var(--ink-2);
+}
+
+.eyebrow {
+	margin: 0 0 0.5rem;
+	color: var(--teal-700);
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+.on-dark .eyebrow {
+	color: var(--glow);
 }
 
 .card {
-	background: var(--card);
+	background: var(--surface);
 	border: 1px solid var(--line);
-	border-radius: 1.25rem;
+	border-radius: var(--radius);
 	padding: clamp(1.25rem, 4vw, 2rem);
-	box-shadow: 0 0 40px -12px rgba(94, 230, 190, 0.25);
+	box-shadow: var(--shadow-1);
 }
 
-.button {
+/* Buttons: navy on paper, glow on dark, ghost for the quieter choice. */
+.btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	gap: 0.5em;
 	min-height: 48px;
-	padding: 0.7em 1.6em;
+	padding: 0.65em 1.5em;
+	border: 2px solid transparent;
+	border-radius: 999px;
+	background: var(--navy-800);
+	color: #fff;
+	font-family: var(--font-display);
+	font-size: 1.02rem;
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+	cursor: pointer;
+	transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.btn:hover {
+	color: #fff;
+	background: var(--navy-700);
+	transform: translateY(-2px);
+	box-shadow: 0 10px 22px -10px rgba(11, 34, 54, 0.55);
+}
+.btn--glow {
+	background: var(--glow);
+	color: var(--navy-900);
+}
+.btn--glow:hover {
+	background: #a2fae0;
+	color: var(--navy-900);
+	box-shadow: 0 10px 28px -8px rgba(124, 245, 208, 0.55);
+}
+.btn--ghost {
+	background: transparent;
+	border-color: currentColor;
+	color: var(--navy-800);
+}
+.btn--ghost:hover {
+	background: rgba(11, 34, 54, 0.06);
+	color: var(--navy-800);
+	box-shadow: none;
+}
+.on-dark .btn--ghost {
+	color: var(--on-dark);
+	border-color: rgba(234, 251, 245, 0.45);
+}
+.on-dark .btn--ghost:hover {
+	background: rgba(234, 251, 245, 0.1);
+	color: #fff;
+}
+.btn--small {
+	min-height: 44px;
+	padding: 0.4em 1.1em;
+	font-size: 0.92rem;
+}
+
+/* Small status labels. */
+.chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.25rem 0.7rem;
+	border-radius: 999px;
+	background: rgba(11, 34, 54, 0.06);
+	color: var(--ink-2);
+	font-size: 0.78rem;
+	font-weight: 650;
+	line-height: 1.4;
+	white-space: nowrap;
+}
+.chip--soon {
+	background: transparent;
+	border: 1px dashed rgba(11, 34, 54, 0.3);
+}
+.on-dark .chip {
+	background: rgba(234, 251, 245, 0.1);
+	color: var(--on-dark);
+}
+.on-dark .chip--soon {
+	background: transparent;
+	border-color: rgba(234, 251, 245, 0.4);
+	color: var(--on-dark-2);
+}
+.flag {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.2rem 0.65rem;
 	border-radius: 999px;
 	background: var(--pink);
-	color: var(--pink-ink);
-	font-weight: 700;
-	text-decoration: none;
-	box-shadow: 0 0 24px -4px rgba(240, 143, 187, 0.65);
-	transition: transform 0.15s ease, box-shadow 0.15s ease;
+	color: #3b0a22;
+	font-family: var(--font-display);
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
 }
-.button:hover {
-	text-shadow: none;
-	transform: translateY(-1px);
-	box-shadow: 0 0 34px -2px rgba(240, 143, 187, 0.85);
+.flag--soon {
+	background: #ffd66b;
+	color: #3a2a00;
+}
+
+/* Page sections. */
+.section {
+	padding-block: clamp(3.5rem, 8vw, 6rem);
+}
+.section--tint {
+	background: var(--paper-2);
+}
+.section-head {
+	max-width: 40rem;
+	margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+.section-head h2 {
+	margin: 0 0 0.4rem;
+	font-size: clamp(1.8rem, 1.35rem + 2vw, 2.75rem);
+}
+.section-head p:last-child {
+	margin: 0;
+	color: var(--ink-2);
+}
+.on-dark {
+	color: var(--on-dark);
 }
 
 .skip {
 	position: absolute;
 	left: 1rem;
-	top: -4rem;
+	top: -5rem;
 	padding: 0.6rem 1rem;
-	background: var(--ink);
-	color: var(--bg);
+	background: #fff;
+	color: var(--navy-900);
 	border-radius: 0.5rem;
-	z-index: 10;
+	z-index: 100;
 }
 .skip:focus {
 	top: 1rem;
@@ -174,7 +351,21 @@ strong {
 
 .updated {
 	font-size: 0.9rem;
-	color: var(--muted);
+	color: var(--ink-2);
+}
+
+/* Gentle entrance for sections as they scroll into view. Only applied when
+   JavaScript has marked the page, so nothing is hidden without it. */
+@media (prefers-reduced-motion: no-preference) {
+	.js [data-reveal] {
+		opacity: 0;
+		transform: translateY(18px);
+		transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+	}
+	.js [data-reveal].is-in {
+		opacity: 1;
+		transform: none;
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {

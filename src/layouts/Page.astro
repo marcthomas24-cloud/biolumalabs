@@ -2,28 +2,54 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import MediaViewer from '../components/MediaViewer.astro';
 
 interface Props {
 	title: string;
 	description: string;
-	/** Let the page use the full site width instead of the reading column. */
+	image?: string;
+	imageAlt?: string;
+	jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+	noindex?: boolean;
+	/** Full-width page built from sections, instead of the single reading column. */
 	wide?: boolean;
 }
 
-const { title, description, wide = false } = Astro.props;
+const { wide = false, ...head } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en-GB">
 	<head>
-		<BaseHead title={title} description={description} />
+		<BaseHead {...head} />
 	</head>
 	<body>
 		<a class="skip" href="#main">Skip to content</a>
 		<Header />
-		<main id="main" class:list={{ wide }}>
+		<main id="main" class:list={{ prose: !wide }}>
 			<slot />
 		</main>
 		<Footer />
+		<MediaViewer />
+		<script>
+			// Fade sections in as they are scrolled to.
+			const items = document.querySelectorAll('[data-reveal]');
+			if ('IntersectionObserver' in window) {
+				const io = new IntersectionObserver(
+					(entries) => {
+						for (const entry of entries) {
+							if (entry.isIntersecting) {
+								entry.target.classList.add('is-in');
+								io.unobserve(entry.target);
+							}
+						}
+					},
+					{ rootMargin: '0px 0px -8% 0px' },
+				);
+				items.forEach((el) => io.observe(el));
+			} else {
+				items.forEach((el) => el.classList.add('is-in'));
+			}
+		</script>
 	</body>
 </html>

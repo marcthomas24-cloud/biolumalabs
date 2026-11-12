@@ -1,0 +1,72 @@
+---
+import type { Game } from '../data/games';
+
+interface Props {
+	game: Game;
+	/** 'buttons' for a game's own page, 'compact' for cards. */
+	variant?: 'buttons' | 'compact';
+	/** Use the bright button for the main action (on dark backgrounds). */
+	glow?: boolean;
+}
+
+const { game: g, variant = 'buttons', glow = false } = Astro.props;
+const external = (url: string) => url.startsWith('http');
+
+const stores = [
+	{ name: 'Google Play', url: g.googlePlay, label: 'Get it on Google Play' },
+	{ name: 'the App Store', url: g.appStore, label: 'Download on the App Store' },
+];
+const live = stores.filter((s) => s.url);
+const soon = g.hideStoreNotes ? [] : stores.filter((s) => !s.url);
+const small = variant === 'compact';
+// The first available action gets the solid button; the rest are outlined.
+let first = true;
+const style = () => {
+	const cls = ['btn', small && 'btn--small', first ? glow && 'btn--glow' : 'btn--ghost'];
+	first = false;
+	return cls;
+};
+---
+
+{(live.length > 0 || g.playUrl || soon.length > 0) && (
+	<ul class:list={['stores', variant]} aria-label={`Where to get ${g.name}`}>
+		{live.map((s) => (
+			<li>
+				<a class:list={style()} href={s.url} rel="noopener">
+					{s.name === 'Google Play' ? (
+						<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M4.5 3.3v17.4c0 .5.5.8 1 .5l14.6-8.7c.4-.2.4-.8 0-1L5.500 2.800c-.5-.3-1 0-1 .5z" /></svg>
+					) : (
+						<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3l2.6 5.6 6.1.7-4.500 4.200 1.200 6-5.400-3-5.400 3 1.200-6L3.300 9.300l6.100-.7z" /></svg>
+					)}
+					{s.label}<span class="sr-only"> ({g.name})</span>
+				</a>
+			</li>
+		))}
+		{g.playUrl && (
+			<li>
+				<a class:list={style()} href={g.playUrl} rel={external(g.playUrl) ? 'noopener' : undefined}>
+					Play in your browser<span class="sr-only"> ({g.name})</span> <span aria-hidden="true">→</span>
+				</a>
+			</li>
+		)}
+		{soon.map((s) => <li class="chip chip--soon">Coming soon to {s.name}</li>)}
+	</ul>
+)}
+
+<style>
+	.stores {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.6rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.stores li {
+		margin: 0;
+	}
+	.compact {
+		gap: 0.45rem;
+	}
+</style>

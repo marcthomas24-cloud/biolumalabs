@@ -1,48 +1,150 @@
 ---
 import { COMPANY, COMPANY_DETAILS, CONTACT_EMAIL, SITE_TITLE } from '../consts';
+import { RELEASED, UPCOMING, gameUrl } from '../data/games';
 ---
 
-<footer>
-	<nav aria-label="Footer">
-		<a href="/privacy/">Privacy</a>
-		<a href="/support/">Support</a>
-		<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
-	</nav>
-	<p>&copy; 2026 {COMPANY} t/a {SITE_TITLE}. All rights reserved.</p>
-	<p class="legal">{SITE_TITLE} is a trading name of {COMPANY}. {COMPANY_DETAILS}</p>
+<footer class="site-footer on-dark">
+	<div class="inner">
+		<div class="about">
+			<a class="brand" href="/" aria-label={`${SITE_TITLE} home`}>
+				<img src="/favicon.svg" width="48" height="48" alt="" loading="lazy" />
+				<span>BioLuma <span class="labs">Labs</span></span>
+			</a>
+			<p class="motto">Glow &bull; Grow &bull; Play</p>
+			<p>A family-led independent games studio in the UK. Designed by kids. Engineered by adults.</p>
+		</div>
+		<nav aria-label="Games">
+			<h2>Games</h2>
+			<ul>
+				{RELEASED.map((g) => <li><a href={gameUrl(g)}>{g.name}</a></li>)}
+			</ul>
+		</nav>
+		<nav aria-label="Coming soon and studio">
+			<h2>Coming soon</h2>
+			<ul>
+				{UPCOMING.map((g) => <li><a href={gameUrl(g)}>{g.name}</a></li>)}
+				<li><a href="/#piglets-surgery">Piglet's Surgery</a></li>
+			</ul>
+			<h2 class="second">Studio</h2>
+			<ul>
+				<li><a href="/#about">About us</a></li>
+				<li><a href="/#contact">Contact</a></li>
+			</ul>
+		</nav>
+		<nav aria-label="Help">
+			<h2>Help</h2>
+			<ul>
+				<li><a href="/support/">Support</a></li>
+				<li><a href="/privacy/">Privacy</a></li>
+				<li><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></li>
+			</ul>
+		</nav>
+	</div>
+	<div class="legal">
+		<p>&copy; 2026 {COMPANY} t/a {SITE_TITLE}. All rights reserved.</p>
+		<p class="small">
+			{SITE_TITLE} is a trading name of {COMPANY}. {COMPANY_DETAILS} Google Play is a trademark of
+			Google LLC. App Store is a service mark of Apple Inc.
+		</p>
+	</div>
 </footer>
+
 <style>
-	footer {
-		border-top: 1px solid var(--line);
-		padding: 2rem max(1rem, env(safe-area-inset-left)) calc(2.5rem + env(safe-area-inset-bottom));
-		text-align: center;
-		color: var(--muted);
-		font-size: 0.9rem;
+	.site-footer {
+		background: var(--navy-900);
+		color: var(--on-dark-2);
+		padding: clamp(2.5rem, 6vw, 4rem) var(--gutter) calc(2rem + env(safe-area-inset-bottom));
+		font-size: 0.95rem;
 	}
-	nav {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 0.25rem 1rem;
+	.inner,
+	.legal {
+		max-width: var(--wide);
+		margin: 0 auto;
 	}
-	nav a {
+	.inner {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 2rem 1.5rem;
+	}
+	.about {
+		grid-column: 1 / -1;
+		max-width: 24rem;
+	}
+	.about p {
+		margin: 0;
+	}
+	.brand {
 		display: inline-flex;
 		align-items: center;
-		min-height: 44px;
-		padding: 0 0.25rem;
-		color: var(--muted);
+		gap: 0.6rem;
+		color: var(--on-dark);
+		font-family: var(--font-display);
+		font-size: 1.5rem;
+		font-weight: 600;
+		text-decoration: none;
 	}
-	nav a:hover {
+	.labs {
 		color: var(--glow);
 	}
-	p {
-		margin: 0.75rem 0 0;
+	.about .motto {
+		margin: 0.35rem 0 0.75rem;
+		color: var(--glow);
 		font-size: 0.75rem;
+		font-weight: 700;
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+	}
+	h2 {
+		margin: 0 0 0.5rem;
+		color: var(--on-dark);
+		font-size: 1rem;
+		letter-spacing: 0;
+	}
+	h2.second {
+		margin-top: 1.5rem;
+	}
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	li {
+		margin: 0;
+	}
+	li a {
+		display: inline-flex;
+		align-items: center;
+		min-height: 40px;
+		color: var(--on-dark-2);
+		text-decoration: none;
+		overflow-wrap: anywhere;
+	}
+	li a:hover {
+		color: var(--glow);
+		text-decoration: underline;
 	}
 	.legal {
+		margin-top: 2.5rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--line-dark);
+		font-size: 0.82rem;
+	}
+	.legal p {
+		margin: 0;
+	}
+	.legal .small {
 		margin-top: 0.4rem;
-		font-size: 0.625rem;
-		line-height: 1.4;
-		opacity: 0.75;
+		max-width: 52rem;
+		font-size: 0.72rem;
+		line-height: 1.5;
+		opacity: 0.8;
+	}
+	@media (min-width: 52rem) {
+		.inner {
+			grid-template-columns: 1.6fr 1fr 1fr 1.2fr;
+		}
+		.about {
+			grid-column: auto;
+		}
 	}
 </style>
