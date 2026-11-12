@@ -10,14 +10,17 @@ interface Props {
 	eager?: boolean;
 	/** Show a "Watch the trailer" label beside the play button. */
 	label?: boolean;
-	size?: 'm' | 'l';
+	/** 'xl' is the cinematic version: a centred play button, a vignette and a title card. */
+	size?: 'm' | 'l' | 'xl';
+	/** Title card shown on the 'xl' poster, e.g. the game's name. */
+	caption?: string;
 }
 
-const { trailer, image, width = 1280, height = 720, eager = false, label = false, size = 'm' } = Astro.props;
+const { trailer, image, width = 1280, height = 720, eager = false, label = false, size = 'm', caption } = Astro.props;
 ---
 
 <a
-	class:list={['poster', `size-${size}`]}
+	class:list={['poster', `size-${size}`, { captioned: size === 'xl' && caption }]}
 	href={`https://www.youtube.com/watch?v=${trailer.id}`}
 	data-video={trailer.id}
 	data-title={trailer.title}
@@ -36,6 +39,12 @@ const { trailer, image, width = 1280, height = 720, eager = false, label = false
 			<svg viewBox="0 0 24 24" width="28" height="28"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
 		</span>
 		{label && <span class="text">Watch the trailer</span>}
+		{size === 'xl' && caption && (
+			<span class="titlecard">
+				<span class="kicker">Official trailer</span>
+				<span class="title">{caption}</span>
+			</span>
+		)}
 	</span>
 </a>
 
@@ -101,6 +110,87 @@ const { trailer, image, width = 1280, height = 720, eager = false, label = false
 	.text {
 		text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
 	}
+	/* ---------- Cinematic ---------- */
+	.size-xl::after {
+		background:
+			radial-gradient(ellipse at center, transparent 45%, rgba(3, 12, 22, 0.55) 100%),
+			linear-gradient(to top, rgba(3, 12, 22, 0.85), transparent 45%);
+	}
+	/* Letterbox bars that open up on hover, like house lights going down. */
+	.size-xl::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		pointer-events: none;
+		border-block: clamp(0.6rem, 2.2vw, 1.6rem) solid #000;
+		transition: border-width 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+	}
+	.size-xl:hover::before,
+	.size-xl:focus-visible::before {
+		border-block-width: 0;
+	}
+	.size-xl .play {
+		inset: 0;
+		justify-content: center;
+	}
+	.size-xl .disc {
+		position: relative;
+		width: clamp(4.5rem, 9vw, 6.5rem);
+		height: clamp(4.5rem, 9vw, 6.5rem);
+		background: rgba(255, 255, 255, 0.16);
+		color: #fff;
+		border: 2px solid rgba(255, 255, 255, 0.85);
+		backdrop-filter: blur(6px);
+		-webkit-backdrop-filter: blur(6px);
+	}
+	.size-xl .disc svg {
+		width: 40%;
+		height: 40%;
+	}
+	.size-xl .disc::after {
+		content: "";
+		position: absolute;
+		inset: -2px;
+		border-radius: 50%;
+		border: 2px solid var(--glow);
+		animation: ping 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) infinite;
+	}
+	@keyframes ping {
+		0% { transform: scale(1); opacity: 0.9; }
+		100% { transform: scale(1.6); opacity: 0; }
+	}
+	/* With a title card the button moves to the lower left, clear of the artwork. */
+	.captioned .play {
+		inset: auto auto clamp(1.4rem, 3.5vw, 2.6rem) clamp(1.2rem, 3vw, 2.2rem);
+		justify-content: flex-start;
+		gap: clamp(0.8rem, 2vw, 1.25rem);
+	}
+	.titlecard {
+		display: none;
+		gap: 0.1rem;
+		text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+	}
+	@media (min-width: 40rem) {
+		.titlecard {
+			display: grid;
+		}
+	}
+	.kicker {
+		color: var(--glow);
+		font-family: var(--font-body);
+		font-size: 0.72rem;
+		font-weight: 700;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+	}
+	.title {
+		font-family: var(--font-display);
+		font-size: clamp(1.3rem, 1rem + 1.4vw, 2.1rem);
+		font-weight: 600;
+		line-height: 1.1;
+	}
+
 	.poster:hover img,
 	.poster:focus-visible img {
 		transform: scale(1.04);
@@ -109,5 +199,6 @@ const { trailer, image, width = 1280, height = 720, eager = false, label = false
 	.poster:focus-visible .disc {
 		transform: scale(1.1);
 		background: var(--glow);
+		color: var(--navy-900);
 	}
 </style>

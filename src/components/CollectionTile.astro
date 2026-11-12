@@ -1,0 +1,328 @@
+---
+// One title in a homepage collection. The size is chosen by the layout:
+//   hero  - the big tile; its artwork stretches to fill the row it spans
+//   m     - a regular tile with 16:9 artwork
+//   fill  - like m, but the artwork stretches to match its row (no fixed ratio)
+//   strip - a short, wide banner with the copy laid over the artwork
+import type { Game } from '../data/games';
+import { gameUrl } from '../data/games';
+
+interface Props {
+	game: Game;
+	size?: 'hero' | 'm' | 'fill' | 'strip';
+	/** Where the tile leads; defaults to the game's own page. */
+	href?: string;
+	/** Override the call to action on the strip. */
+	cta?: string;
+	/** Focus point for the cropped artwork, e.g. "50% 30%". */
+	focus?: string;
+	/** On wide screens, let the artwork grow to fill the grid row. */
+	stretch?: boolean;
+}
+
+const { game: g, size = 'm', href = gameUrl(g), cta, focus = '50% 50%', stretch = size === 'fill' } = Astro.props;
+const upcoming = g.status === 'upcoming';
+const big = size === 'hero' || size === 'strip';
+const where = [g.appStore && 'App Store', g.googlePlay && 'Google Play', g.playUrl && 'Browser'].filter(Boolean);
+---
+
+<article class:list={['tile', `size-${size}`, { stretch }]} style={`--accent: ${g.accent}; --focus: ${focus}`}>
+	<div class="art">
+		<img
+			src={big ? g.art : g.artSmall}
+			alt=""
+			width={big ? g.artWidth : 800}
+			height={big ? g.artHeight : 450}
+			loading="lazy"
+			decoding="async"
+		/>
+		{size !== 'strip' && (upcoming || g.isNew) && (
+			<p class="flags">
+				{upcoming && <span class="flag flag--soon">Coming soon</span>}
+				{g.isNew && <span class="flag">New</span>}
+			</p>
+		)}
+		{size === 'hero' && g.trailer && (
+			<a
+				class="trailer"
+				href={`https://www.youtube.com/watch?v=${g.trailer.id}`}
+				data-video={g.trailer.id}
+				data-title={g.trailer.title}
+			>
+				<span class="disc" aria-hidden="true">
+					<svg viewBox="0 0 24 24" width="18" height="18"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
+				</span>
+				Watch the trailer<span class="sr-only">: {g.name}</span>
+			</a>
+		)}
+	</div>
+	<div class="body">
+		{g.icon && <img class="icon" src={g.icon} width="64" height="64" alt="" loading="lazy" decoding="async" />}
+		<div class="text">
+			{size === 'strip' && upcoming && <p class="flags"><span class="flag flag--soon">Coming soon</span></p>}
+			<p class="genre">{g.genre}</p>
+			<h3><a href={href}>{g.name}</a></h3>
+			<p class="tagline">{g.tagline}</p>
+			{size === 'hero' && <p class="summary">{g.summary}</p>}
+		</div>
+		<p class="where">
+			{upcoming ? <span>{cta ?? 'In development'}</span> : where.map((w) => <span>{w}</span>)}
+			<span class="go" aria-hidden="true">→</span>
+		</p>
+	</div>
+</article>
+
+<style>
+	.tile {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		overflow: hidden;
+		border-radius: var(--radius-l);
+		/* Each tile is tinted with its own game's colour, on the same paper. */
+		background: color-mix(in srgb, var(--accent) 9%, var(--surface));
+		box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent), var(--shadow-1);
+		transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.3s ease;
+	}
+	.art {
+		position: relative;
+		aspect-ratio: 16 / 9;
+		overflow: hidden;
+		background: var(--accent);
+	}
+	.art img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: var(--focus);
+		transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+	}
+	.flags {
+		position: absolute;
+		top: 1rem;
+		left: 1rem;
+		display: flex;
+		gap: 0.4rem;
+		margin: 0;
+	}
+	.body {
+		position: relative;
+		display: flex;
+		align-items: flex-start;
+		flex-wrap: wrap;
+		gap: 0.25rem 1rem;
+		padding: 1.1rem 1.25rem 1.2rem;
+	}
+	.icon {
+		flex: none;
+		width: 3.5rem;
+		height: 3.5rem;
+		border-radius: 22%;
+		box-shadow: 0 6px 16px -6px rgba(11, 34, 54, 0.5), 0 0 0 2px var(--surface);
+	}
+	.text {
+		flex: 1;
+		min-width: 0;
+	}
+	.genre {
+		margin: 0 0 0.1rem;
+		color: color-mix(in srgb, var(--accent) 70%, var(--ink));
+		font-size: 0.72rem;
+		font-weight: 750;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+	h3 {
+		margin: 0 0 0.2rem;
+		font-size: 1.45rem;
+	}
+	/* The whole tile is the link; the title carries its name. */
+	h3 a {
+		color: var(--ink);
+		text-decoration: none;
+	}
+	h3 a::after {
+		content: "";
+		position: absolute;
+		inset: -100vh -100vw;
+		z-index: 1;
+	}
+	.tile:has(h3 a:focus-visible) {
+		outline: 3px solid var(--teal-500);
+		outline-offset: 3px;
+	}
+	h3 a:focus-visible {
+		outline: none;
+	}
+	.tagline {
+		margin: 0;
+		color: var(--ink-2);
+		font-size: 0.97rem;
+		line-height: 1.45;
+	}
+	.summary {
+		display: none;
+		max-width: 34rem;
+		margin: 0.6rem 0 0;
+		color: var(--ink-2);
+	}
+	.where {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.3rem 0.9rem;
+		flex-basis: 100%;
+		margin: 0.6rem 0 0;
+		color: var(--ink-2);
+		font-size: 0.8rem;
+		font-weight: 650;
+	}
+	.where span:not(.go)::before {
+		content: "";
+		display: inline-block;
+		width: 0.45rem;
+		height: 0.45rem;
+		margin-right: 0.4rem;
+		border-radius: 50%;
+		background: var(--accent);
+		vertical-align: 0.08em;
+	}
+	.go {
+		margin-left: auto;
+		display: grid;
+		place-items: center;
+		width: 2.25rem;
+		height: 2.25rem;
+		border-radius: 50%;
+		background: var(--accent);
+		color: #fff;
+		font-size: 1.1rem;
+		line-height: 1;
+		transition: transform 0.2s ease;
+	}
+
+	/* A trailer button that sits above the tile-wide link. */
+	.trailer {
+		position: absolute;
+		right: 1rem;
+		bottom: 1rem;
+		z-index: 2;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.6rem;
+		min-height: 48px;
+		padding: 0.35rem 1.1rem 0.35rem 0.35rem;
+		border-radius: 999px;
+		background: rgba(5, 19, 32, 0.72);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+		color: #fff;
+		font-family: var(--font-display);
+		font-weight: 600;
+		text-decoration: none;
+		transition: background-color 0.2s ease, transform 0.2s ease;
+	}
+	.trailer:hover {
+		color: var(--navy-900);
+		background: var(--glow);
+		transform: translateY(-2px);
+	}
+	.trailer .disc {
+		display: grid;
+		place-items: center;
+		width: 2.4rem;
+		height: 2.4rem;
+		border-radius: 50%;
+		background: #fff;
+		color: var(--navy-900);
+	}
+	.trailer .disc svg {
+		margin-left: 2px;
+	}
+
+	/* ---------- Sizes ---------- */
+	.size-hero h3 {
+		font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.5rem);
+	}
+	.size-hero .icon {
+		width: 4.25rem;
+		height: 4.25rem;
+	}
+	@media (min-width: 44rem) {
+		.size-hero .body {
+			padding: 1.4rem 1.6rem 1.5rem;
+		}
+		.size-hero .summary {
+			display: block;
+		}
+	}
+	@media (min-width: 62rem) {
+		/* On wide screens the big tile and "fill" tiles stretch their art to the row. */
+		.stretch .art {
+			flex: 1;
+			aspect-ratio: auto;
+			min-height: 16rem;
+		}
+	}
+
+	/* The strip: copy laid over a wide panorama. */
+	.size-strip {
+		min-height: clamp(15rem, 26vw, 19rem);
+		justify-content: flex-end;
+		background: #052a33;
+	}
+	.size-strip .art {
+		position: absolute;
+		inset: 0;
+		aspect-ratio: auto;
+	}
+	.size-strip .art::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(to right, rgba(5, 42, 51, 0.92) 0%, rgba(5, 42, 51, 0.55) 40%, transparent 70%);
+	}
+	.size-strip .body {
+		max-width: 30rem;
+		padding: clamp(1.25rem, 3vw, 2rem);
+	}
+	.size-strip h3 {
+		font-size: clamp(1.8rem, 1.3rem + 2vw, 2.6rem);
+	}
+	.size-strip h3 a,
+	.size-strip .tagline,
+	.size-strip .where {
+		color: var(--on-dark);
+	}
+	.size-strip .genre {
+		color: var(--glow);
+	}
+	.size-strip .flags {
+		position: static;
+		margin-bottom: 0.6rem;
+	}
+	@media (max-width: 43.99rem) {
+		.size-strip .art::after {
+			background: linear-gradient(to top, rgba(5, 42, 51, 0.95) 0%, rgba(5, 42, 51, 0.6) 55%, transparent 85%);
+		}
+		.size-strip {
+			min-height: 22rem;
+		}
+	}
+
+	@media (hover: hover) {
+		.tile:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent), var(--shadow-2);
+		}
+		.tile:hover .art img {
+			transform: scale(1.05);
+		}
+		.tile:hover .go {
+			transform: translateX(4px);
+		}
+	}
+</style>

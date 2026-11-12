@@ -177,6 +177,9 @@ a:hover {
 }
 
 .eyebrow {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
 	margin: 0 0 0.5rem;
 	color: var(--teal-700);
 	font-size: 0.78rem;
@@ -186,6 +189,24 @@ a:hover {
 }
 .on-dark .eyebrow {
 	color: var(--glow);
+}
+/* The studio's signature: a short glowing rule before every label, like a
+   specimen tag in a lab. Numbered sections add a small badge. */
+.eyebrow::before {
+	content: "";
+	flex: none;
+	width: 1.6rem;
+	height: 2px;
+	border-radius: 2px;
+	background: currentColor;
+	box-shadow: 0 0 10px currentColor;
+}
+.eyebrow .no {
+	padding: 0.05rem 0.5rem;
+	border: 1.5px solid currentColor;
+	border-radius: 999px;
+	font-family: var(--font-display);
+	letter-spacing: 0.06em;
 }
 
 .card {

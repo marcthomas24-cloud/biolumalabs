@@ -35,14 +35,17 @@ page, the footer links, the sitemap and the search/social metadata are all gener
 
 3. Store links: paste the listing URL once it is live. Until then leave it as `""` and the site
    says "Coming soon to …" for that store.
-4. `featured: 1`, `2`, `3` … puts a game in the Featured section, in that order.
+4. The homepage is curated by hand in `src/pages/index.astro`: games are grouped into families
+   (the Axolotl family, Starring Capy) and the strongest artwork gets the biggest tile. A released
+   game that isn't placed there still appears automatically under the Capy collection, so nothing
+   is left out; move it into a family when you're ready.
 
 ## Where things are
 
 - Studio name, URLs and the contact address: `src/consts.ts`.
 - Colours, type and shared styles (buttons, chips, sections): `src/styles/global.css`.
-- Components: `src/components/` (`GameCard` for the catalogue, `FeatureCard` for the featured
-  section, `PlayPoster` + `MediaViewer` for trailers and the screenshot lightbox, `StoreLinks`).
+- Components: `src/components/` (`CollectionTile` for the homepage collections, `GameCard` for
+  "More from BioLuma Labs", `PlayPoster` + `MediaViewer` for trailers and the screenshot lightbox, `StoreLinks`).
 - `public/og.jpg` is the default 1200×630 share image (social sites don't render SVG).
 - The heading font is Fredoka (SIL Open Font License, see `public/fonts/OFL-Fredoka.txt`).
 

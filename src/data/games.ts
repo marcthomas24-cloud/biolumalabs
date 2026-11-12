@@ -1,5 +1,5 @@
-// The whole catalogue lives here. The homepage, the catalogue grid, the
-// trailer rail and every /games/<slug>/ page are generated from this list.
+// The whole catalogue lives here. The homepage collections, the
+// trailer screen and every /games/<slug>/ page are generated from this list.
 //
 // To add a game:
 //   1. Add an entry below (copy an existing one).
@@ -34,8 +34,6 @@ export type Game = {
 	/** Short genre label shown on cards and pages. */
 	genre: string;
 	status: "released" | "upcoming";
-	/** Lower numbers come first in the Featured section. Leave out to keep a game out of it. */
-	featured?: number;
 	/** Shows a "New" flag on cards. */
 	isNew?: boolean;
 	tagline: string;
@@ -77,7 +75,6 @@ export const GAMES: Game[] = [
 		kind: "Game",
 		genre: "Adventure",
 		status: "released",
-		featured: 1,
 		tagline: "The water is disappearing.",
 		summary:
 			"An underwater adventure about an axolotl trying to discover where the water has gone.",
@@ -118,17 +115,16 @@ export const GAMES: Game[] = [
 			"Plays offline",
 		],
 		icon: "/icons/axolotl-odyssey.png",
-		art: "/art/axolotl-odyssey.webp",
-		artSmall: "/art/axolotl-odyssey-800.webp",
-		artWidth: 1600,
-		artHeight: 900,
-		artAlt:
-			"The Axolotl Odyssey title screen: pink, gold and dark axolotls swimming under lily pads behind the game title",
+		art: "/art/axolotl-odyssey-key.webp",
+		artSmall: "/art/axolotl-odyssey-key-800.webp",
+		artWidth: 1280,
+		artHeight: 720,
+		artAlt: "The Axolotl Odyssey logo beside a smiling golden axolotl in dark, glowing water",
 		ogImage: "/og/axolotl-odyssey.jpg",
 		accent: "#12a594",
 		playUrl: "https://play.biolumalabs.com/",
 		googlePlay: "https://play.google.com/store/apps/details?id=com.biolumalabs.axolotlodyssey",
-		appStore: "",
+		appStore: "https://apps.apple.com/app/axolotl-odyssey/id6819019013",
 		trailer: {
 			id: "k4TxM0mbWEU",
 			title: "Axolotl Odyssey trailer",
@@ -149,7 +145,6 @@ export const GAMES: Game[] = [
 		kind: "Game",
 		genre: "Arcade sports",
 		status: "released",
-		featured: 2,
 		tagline: "10 sports. 1 Capy. 1 champion.",
 		summary: "Quick arcade sports starring Capy the capybara.",
 		description: [
@@ -221,7 +216,6 @@ export const GAMES: Game[] = [
 		kind: "App",
 		genre: "Creative colouring",
 		status: "released",
-		featured: 3,
 		isNew: true,
 		tagline: "A calm, colourful underwater world.",
 		summary:
@@ -393,7 +387,7 @@ export const GAMES: Game[] = [
 		accent: "#1b84d6",
 		playUrl: "/axolotl-chase/",
 		googlePlay: "https://play.google.com/store/apps/details?id=com.biolumalabs.axolotlchase",
-		appStore: "",
+		appStore: "https://apps.apple.com/app/axolotl-chase/id6822013474",
 		trailer: {
 			id: "W8-ubc10RHU",
 			title: "Axolotl Chase trailer",
@@ -507,7 +501,4 @@ export const gameUrl = (g: Game) => `/games/${g.slug}/`;
 
 export const RELEASED = GAMES.filter((g) => g.status === "released");
 export const UPCOMING = GAMES.filter((g) => g.status === "upcoming");
-export const FEATURED = RELEASED.filter((g) => g.featured !== undefined).sort(
-	(a, b) => (a.featured ?? 0) - (b.featured ?? 0),
-);
 export const WITH_TRAILERS = GAMES.filter((g) => g.trailer);
