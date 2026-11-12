@@ -3,12 +3,12 @@ import Page from '../layouts/Page.astro';
 import { SITE_TITLE } from '../consts';
 ---
 
-<Page title={`Not found — ${SITE_TITLE}`} description="This page swam off somewhere.">
+<Page title={`Not found — ${SITE_TITLE}`} description="This page swam off somewhere." noindex>
 	<div class="lost">
 		<img src="/favicon.svg" width="120" height="120" alt="" />
 		<h1>This page swam off</h1>
 		<p class="lede">We couldn't find what you were looking for.</p>
-		<p><a class="button" href="/">Back to the start</a></p>
+		<p><a class="btn" href="/">Back to the start</a> <a class="btn btn--ghost" href="/#catalogue">Browse our games</a></p>
 	</div>
 </Page>
 

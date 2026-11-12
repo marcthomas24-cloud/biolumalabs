@@ -2,7 +2,8 @@
 
 export const SITE_TITLE = "BioLuma Labs";
 export const SITE_DESCRIPTION =
-	"An independent game and app studio. Designed by kids. Engineered by adults.";
+	"BioLuma Labs is a family-led independent games studio. Discover original games and creative experiences made with imagination, for curious minds and families.";
+export const SITE_TAGLINE = "Little worlds. Big adventures.";
 export const SITE_URL = "https://biolumalabs.com";
 // BioLuma Labs is a trading name. The legal owner of the site, the domain, the games and the apps is the company.
 export const COMPANY = "Diamond Hands Ltd";
@@ -10,108 +11,4 @@ export const COMPANY_DETAILS =
 	"Registered in England and Wales, company no. 16857970. Registered office: 20 Wenlock Road, London N1 7GU.";
 export const CONTACT_EMAIL = "support@biolumalabs.com";
 
-// The games and apps on the homepage, in the order they appear. The first
-// entry with `featured: true` gets the large card at the top of "Our games".
-// To add a game or app, add an entry here and put its icon in public/icons/
-// and its 16:9 artwork in public/art/.
-//
-// playUrl: the in-browser version, or "" if there isn't one.
-// appStore / googlePlay: paste the store listing URL once it is live. Until
-// then leave it as "" and the card says "Coming soon" for that store.
-// webOnly: true for browser-only games, so the card doesn't promise store versions.
-export type Product = {
-	id: string;
-	name: string;
-	kind: "Game" | "App";
-	featured?: boolean;
-	tagline: string;
-	summary: string;
-	icon: string;
-	art: string;
-	artAlt: string;
-	playUrl: string;
-	appStore: string;
-	googlePlay: string;
-	webOnly?: boolean;
-	// A YouTube trailer, shown under the card on the homepage (see Trailer.astro).
-	trailer?: { id: string; title: string; poster: string };
-};
-
-export const PRODUCTS: Product[] = [
-	{
-		id: "axolotl-odyssey",
-		name: "Axolotl Odyssey",
-		kind: "Game",
-		featured: true,
-		tagline: "The water is disappearing.",
-		summary:
-			"An underwater adventure about an axolotl trying to discover where the water has gone.",
-		icon: "/icons/axolotl-odyssey.png",
-		art: "/art/axolotl-odyssey.webp",
-		artAlt: "The Axolotl Odyssey title screen: pink, gold and dark axolotls swimming under lily pads behind the game title and its Swim, Who goes east, How to play, Journal and Settings buttons",
-		playUrl: "https://play.biolumalabs.com/",
-		appStore: "",
-		googlePlay: "https://play.google.com/store/apps/details?id=com.biolumalabs.axolotlodyssey",
-		trailer: {
-			id: "k4TxM0mbWEU",
-			title: "Axolotl Odyssey trailer",
-			poster: "/art/axolotl-odyssey-trailer.jpg",
-		},
-	},
-	{
-		id: "capy-sports-club",
-		name: "Capy Sports Club",
-		kind: "Game",
-		tagline: "10 sports. 1 Capy. 1 champion.",
-		summary: "Quick arcade sports starring Capy the capybara.",
-		icon: "/icons/capy-sports-club.png",
-		art: "/art/capy-sports-club.webp",
-		artAlt: "Capy the capybara cheering with a basketball on an arena court, beside the Capy Sports Club logo",
-		playUrl: "",
-		appStore: "",
-		googlePlay: "https://play.google.com/store/apps/details?id=com.biolumalabs.capysportsclub",
-		trailer: {
-			id: "W8dxbcYrKJ0",
-			title: "Capy Sports Club trailer",
-			poster: "/art/capy-sports-club-trailer.jpg",
-		},
-	},
-	{
-		id: "capy-boarder",
-		name: "CapyBoarder",
-		kind: "Game",
-		tagline: "Skate. Flip. Smile.",
-		summary:
-			"Capy's grabbed a skateboard and gone full send! Kickflip off ramps, grind rails and pull grabs all the way through the Skatepark, City Streets, Beach Boardwalk, Snowy Peak and Wave Bay. Chase three stars on every course, ride endless mode for a new best, and deck Capy out in wild boards, hats and flame trails.",
-		icon: "/icons/capy-boarder.png",
-		art: "/art/capy-boarder.webp",
-		artAlt: "The CapyBoarder title screen: Capy the capybara on a purple skateboard between two ramps in a skatepark with palm trees against a purple and orange sunset, below the CapyBoarder logo and the tagline 'Skate. Flip. Smile.', above a yellow Play button",
-		playUrl: "/capy-boarder/",
-		appStore: "",
-		googlePlay: "",
-		trailer: {
-			id: "BnPLJr6GbwY",
-			title: "CapyBoarder trailer",
-			poster: "/art/capy-boarder-trailer.jpg",
-		},
-	},
-	{
-		id: "axolotl-chase",
-		name: "Axolotl Chase",
-		kind: "Game",
-		tagline: "A tiny axolotl. A hungry tank. A LOT of fish.",
-		summary:
-			"Gobble shrimp, grab a bloodworm and turn the predators into dinner. A new daily challenge every day.",
-		icon: "/icons/axolotl-chase.png",
-		art: "/art/axolotl-chase.webp",
-		artAlt: "A pink axolotl chasing two frightened fish through clear blue-green water, past a trail of golden shrimp",
-		playUrl: "/axolotl-chase/",
-		appStore: "",
-		googlePlay: "https://play.google.com/store/apps/details?id=com.biolumalabs.axolotlchase",
-		trailer: {
-			id: "W8-ubc10RHU",
-			title: "Axolotl Chase trailer",
-			poster: "/art/axolotl-chase-trailer.jpg",
-		},
-	},
-];
+// The catalogue of games and apps is in src/data/games.ts.

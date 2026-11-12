@@ -1,0 +1,553 @@
+---
+// One template for every game and app: released titles get store links and
+// "good to know" facts, upcoming ones get a preview with no download buttons.
+import Page from '../../layouts/Page.astro';
+import GameCard from '../../components/GameCard.astro';
+import PlayPoster from '../../components/PlayPoster.astro';
+import ScreenshotRail from '../../components/ScreenshotRail.astro';
+import StoreLinks from '../../components/StoreLinks.astro';
+import { COMPANY, SITE_TITLE, SITE_URL } from '../../consts';
+import { GAMES, TANK_MORPHS, gameUrl } from '../../data/games';
+import type { Game } from '../../data/games';
+
+export function getStaticPaths() {
+	return GAMES.map((game) => ({ params: { slug: game.slug }, props: { game } }));
+}
+
+interface Props {
+	game: Game;
+}
+
+const { game: g } = Astro.props;
+const upcoming = g.status === 'upcoming';
+const kind = g.kind.toLowerCase();
+
+// Three other titles, starting with the ones after this one in the catalogue.
+const at = GAMES.indexOf(g);
+const related = [...GAMES.slice(at + 1), ...GAMES.slice(0, at)].slice(0, 3);
+
+const title = upcoming
+	? `${g.name}: coming soon from ${SITE_TITLE}`
+	: `${g.name}: ${g.genre.toLowerCase()} ${kind} by ${SITE_TITLE}`;
+const description = `${g.tagline} ${g.summary}`;
+
+const platforms = [g.googlePlay && 'Android', g.appStore && 'iOS', g.playUrl && 'Web browser'].filter(Boolean);
+const jsonLd = [
+	{
+		'@context': 'https://schema.org',
+		'@type': g.kind === 'Game' ? 'VideoGame' : 'MobileApplication',
+		name: g.name,
+		description: g.summary,
+		url: `${SITE_URL}${gameUrl(g)}`,
+		image: `${SITE_URL}${g.ogImage}`,
+		genre: g.genre,
+		applicationCategory: g.kind === 'Game' ? 'GameApplication' : 'EducationalApplication',
+		...(platforms.length > 0 && { operatingSystem: platforms.join(', ') }),
+		...(g.googlePlay && { installUrl: g.googlePlay }),
+		...(g.trailer && {
+			trailer: {
+				'@type': 'VideoObject',
+				name: g.trailer.title,
+				description: `${g.trailer.title}. ${g.summary}`,
+				thumbnailUrl: `${SITE_URL}${g.trailer.poster}`,
+				embedUrl: `https://www.youtube-nocookie.com/embed/${g.trailer.id}`,
+				url: `https://www.youtube.com/watch?v=${g.trailer.id}`,
+			},
+		}),
+		author: { '@type': 'Organization', name: SITE_TITLE, url: SITE_URL },
+		publisher: { '@type': 'Organization', name: SITE_TITLE, legalName: COMPANY, url: SITE_URL },
+	},
+	{
+		'@context': 'https://schema.org',
+		'@type': 'BreadcrumbList',
+		itemListElement: [
+			{ '@type': 'ListItem', position: 1, name: SITE_TITLE, item: `${SITE_URL}/` },
+			{ '@type': 'ListItem', position: 2, name: 'Games', item: `${SITE_URL}/#catalogue` },
+			{ '@type': 'ListItem', position: 3, name: g.name, item: `${SITE_URL}${gameUrl(g)}` },
+		],
+	},
+];
+---
+
+<Page title={title} description={description} image={g.ogImage} imageAlt={g.artAlt} jsonLd={jsonLd} wide>
+	<article style={`--accent: ${g.accent}`}>
+		<header class="game-hero on-dark">
+			<img class="backdrop" src={g.artSmall} alt="" width="800" height="450" aria-hidden="true" />
+			<div class="container hero-grid">
+				<div class="copy">
+					<nav class="crumbs" aria-label="Breadcrumb">
+						<a href="/">Home</a> <span aria-hidden="true">/</span>
+						<a href="/#catalogue">Games</a> <span aria-hidden="true">/</span>
+						<span aria-current="page">{g.name}</span>
+					</nav>
+					<div class="ident">
+						{g.icon && <img class="icon" src={g.icon} width="88" height="88" alt="" />}
+						<p class="meta">
+							{upcoming && <span class="flag flag--soon">Coming soon</span>}
+							{g.isNew && <span class="flag">New</span>}
+							<span class="genre">{g.genre}</span>
+						</p>
+					</div>
+					<h1>{g.name}</h1>
+					<p class="tagline">{g.tagline}</p>
+					<p class="summary">{g.summary}</p>
+					{upcoming ? (
+						<div class="upcoming">
+							{g.screenshots.length > 0 && (
+								<a class="btn btn--glow" href="#screenshots">See the first screenshots <span aria-hidden="true">↓</span></a>
+							)}
+							<p>In development. No release date yet: we'll share more here as it takes shape.</p>
+						</div>
+					) : (
+						<StoreLinks game={g} glow />
+					)}
+				</div>
+				<div class="frame">
+					{g.trailer ? (
+						<PlayPoster trailer={g.trailer} image={g.art} width={g.artWidth} height={g.artHeight} eager label size="l" />
+					) : (
+						<img src={g.art} alt={g.artAlt} width={g.artWidth} height={g.artHeight} fetchpriority="high" />
+					)}
+				</div>
+			</div>
+		</header>
+
+		<section class="section about" aria-labelledby="about-title">
+			<div class="container about-grid">
+				<div class="story">
+					<p class="eyebrow">{upcoming ? 'First look' : `About the ${kind}`}</p>
+					<h2 id="about-title">{upcoming ? `What is ${g.name}?` : g.tagline}</h2>
+					{g.description.map((p) => <p>{p}</p>)}
+					{g.facts.length > 0 && (
+						<aside class="facts" aria-labelledby="facts-title">
+							<h3 id="facts-title">Good to know</h3>
+							<ul>
+								{g.facts.map((f) => <li>{f}</li>)}
+							</ul>
+							{g.privacyAnchor && (
+								<p><a href={`/privacy/#${g.privacyAnchor}`}>How {g.name} handles privacy</a></p>
+							)}
+						</aside>
+					)}
+					{upcoming && (
+						<aside class="facts" aria-labelledby="facts-title">
+							<h3 id="facts-title">Still in the making</h3>
+							<p>
+								{g.name} is in development, so what you see here may change before release. The
+								artwork and screenshots on this page are from the game as it is today.
+							</p>
+						</aside>
+					)}
+				</div>
+				<div>
+					<h2 class="features-title">{upcoming ? 'What to expect' : 'Key features'}</h2>
+					<ul class="features">
+						{g.features.map((f) => (
+							<li>
+								<h3>{f.title}</h3>
+								<p>{f.text}</p>
+							</li>
+						))}
+					</ul>
+				</div>
+			</div>
+		</section>
+
+		{g.slug === 'axolotl-tank' && (
+			<section class="section morph-band on-dark" aria-labelledby="morphs-title">
+				<div class="container">
+					<div class="section-head">
+						<p class="eyebrow">Collect</p>
+						<h2 id="morphs-title">Meet the axolotls</h2>
+						<p>Every one is a colour real axolotls come in. Which will hatch first?</p>
+					</div>
+					<ul class="morphs">
+						{TANK_MORPHS.map((m) => (
+							<li>
+								<img src={m.src} alt={`A ${m.name} axolotl`} width="640" height="360" loading="lazy" decoding="async" />
+								<span>{m.name}</span>
+							</li>
+						))}
+					</ul>
+				</div>
+			</section>
+		)}
+
+		{g.screenshots.length > 0 && (
+			<section id="screenshots" class="section shots section--tint" aria-labelledby="shots-title">
+				<div class="container">
+					<div class="section-head">
+						<p class="eyebrow">Gallery</p>
+						<h2 id="shots-title">{upcoming ? 'A peek inside' : 'Screenshots'}</h2>
+					</div>
+				</div>
+				<ScreenshotRail shots={g.screenshots} label={`${g.name} screenshots`} />
+			</section>
+		)}
+
+		{g.trailer && (
+			<section class="section trailer" aria-labelledby="trailer-title">
+				<div class="container trailer-grid">
+					<div>
+						<p class="eyebrow">Trailer</p>
+						<h2 id="trailer-title">See {g.name} in action</h2>
+						<p class="muted">Press play to watch here. The video comes from YouTube and only loads when you ask for it.</p>
+						{!upcoming && <StoreLinks game={g} variant="compact" />}
+					</div>
+					<div class="trailer-frame"><PlayPoster trailer={g.trailer} size="l" /></div>
+				</div>
+			</section>
+		)}
+	</article>
+
+	<section class="section more section--tint" aria-labelledby="more-title">
+		<div class="container">
+			<div class="more-head">
+				<h2 id="more-title">More from BioLuma Labs</h2>
+				<a href="/#catalogue">All games <span aria-hidden="true">→</span></a>
+			</div>
+			<ul class="related">
+				{related.map((r) => <li><GameCard game={r} /></li>)}
+			</ul>
+		</div>
+	</section>
+</Page>
+
+<style>
+	/* ---------- Hero ---------- */
+	.game-hero {
+		position: relative;
+		overflow: hidden;
+		isolation: isolate;
+		background: var(--navy-900);
+		padding-block: clamp(1.25rem, 3vw, 2rem) clamp(2.5rem, 6vw, 4.5rem);
+	}
+	/* The game's own artwork, blurred, tints the whole hero in its colours. */
+	.backdrop {
+		position: absolute;
+		inset: -10%;
+		z-index: -2;
+		width: 120%;
+		height: 120%;
+		max-width: none;
+		object-fit: cover;
+		filter: blur(48px) saturate(1.2);
+		opacity: 0.55;
+	}
+	.game-hero::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: linear-gradient(100deg, rgba(5, 19, 32, 0.92) 0%, rgba(5, 19, 32, 0.72) 48%, rgba(5, 19, 32, 0.4) 100%);
+	}
+	.hero-grid {
+		display: grid;
+		gap: clamp(1.75rem, 5vw, 3.5rem);
+		align-items: center;
+	}
+	.crumbs {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0 0.5rem;
+		margin-bottom: clamp(1.25rem, 4vw, 2.5rem);
+		color: var(--on-dark-2);
+		font-size: 0.88rem;
+	}
+	.crumbs a {
+		display: inline-flex;
+		align-items: center;
+		min-height: 40px;
+		color: var(--on-dark-2);
+		text-decoration: none;
+	}
+	.crumbs a:hover {
+		color: #fff;
+		text-decoration: underline;
+	}
+	.crumbs [aria-current] {
+		color: var(--on-dark);
+		font-weight: 600;
+	}
+	.ident {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-bottom: 1rem;
+	}
+	.icon {
+		flex: none;
+		width: 4.5rem;
+		height: 4.5rem;
+		border-radius: 22%;
+		box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.6), 0 0 0 2px rgba(255, 255, 255, 0.18);
+	}
+	.meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem 0.75rem;
+		margin: 0;
+	}
+	.genre {
+		color: var(--on-dark);
+		font-size: 0.78rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+	}
+	h1 {
+		margin: 0 0 0.6rem;
+		font-size: clamp(2.5rem, 1.5rem + 5vw, 4.5rem);
+		line-height: 1;
+		letter-spacing: -0.02em;
+	}
+	.tagline {
+		margin: 0 0 0.6rem;
+		font-family: var(--font-display);
+		font-size: clamp(1.25rem, 1.05rem + 1vw, 1.7rem);
+		font-weight: 500;
+		line-height: 1.25;
+		color: var(--glow);
+	}
+	.summary {
+		max-width: 34rem;
+		margin: 0 0 1.5rem;
+		color: var(--on-dark);
+		font-size: 1.08rem;
+	}
+	.upcoming p {
+		max-width: 30rem;
+		margin: 1rem 0 0;
+		color: var(--on-dark-2);
+		font-size: 0.95rem;
+	}
+	.frame {
+		border-radius: var(--radius-l);
+		overflow: hidden;
+		border: 3px solid rgba(255, 255, 255, 0.9);
+		box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.8);
+		background: var(--navy-800);
+	}
+	.frame > img {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+	@media (min-width: 62rem) {
+		.hero-grid {
+			grid-template-columns: 1fr 1.1fr;
+		}
+		.frame {
+			transform: rotate(1.25deg);
+		}
+	}
+
+	/* ---------- About and features ---------- */
+	.about-grid {
+		display: grid;
+		gap: 2.5rem 4rem;
+	}
+	.story h2 {
+		margin: 0 0 1rem;
+		font-size: clamp(1.7rem, 1.3rem + 1.8vw, 2.5rem);
+	}
+	.story > p:not(.eyebrow) {
+		color: var(--ink-2);
+		font-size: 1.08rem;
+	}
+	.facts {
+		margin-top: 2rem;
+		padding: 1.25rem 1.4rem;
+		border-radius: var(--radius);
+		background: var(--surface);
+		border: 1px solid var(--line);
+		border-left: 5px solid var(--accent);
+	}
+	.facts h3 {
+		margin: 0 0 0.6rem;
+	}
+	.facts ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.facts li {
+		position: relative;
+		padding-left: 1.6rem;
+		color: var(--ink-2);
+	}
+	.facts li::before {
+		content: "✓";
+		position: absolute;
+		left: 0;
+		color: var(--teal-600);
+		font-weight: 800;
+	}
+	.facts p {
+		margin: 0.9rem 0 0;
+		font-size: 0.95rem;
+		color: var(--ink-2);
+	}
+	.facts h3 + p {
+		margin-top: 0;
+	}
+	.features-title {
+		margin: 0 0 1rem;
+		font-size: 1.15rem;
+		font-family: var(--font-body);
+		font-weight: 700;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--ink-2);
+	}
+	.features {
+		display: grid;
+		gap: 0.9rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.features li {
+		margin: 0;
+		padding: 1.1rem 1.25rem;
+		border-radius: var(--radius);
+		background: var(--surface);
+		border: 1px solid var(--line);
+		box-shadow: var(--shadow-1);
+	}
+	.features h3 {
+		margin: 0 0 0.25rem;
+		font-size: 1.15rem;
+	}
+	.features p {
+		margin: 0;
+		color: var(--ink-2);
+		font-size: 0.96rem;
+		line-height: 1.55;
+	}
+	@media (min-width: 36rem) {
+		.features {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+	@media (min-width: 62rem) {
+		.about-grid {
+			grid-template-columns: 1fr 1.15fr;
+			align-items: start;
+		}
+	}
+
+	/* ---------- Axolotl Tank: the morph line-up ---------- */
+	.morph-band {
+		background:
+			radial-gradient(50rem 24rem at 80% 0%, rgba(20, 167, 162, 0.35), transparent 70%),
+			#052a33;
+	}
+	.morph-band .section-head p:last-child {
+		color: var(--on-dark-2);
+	}
+	.morphs {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		text-align: center;
+	}
+	.morphs li {
+		margin: 0;
+		padding: 0.75rem 0.75rem 0.9rem;
+		border-radius: var(--radius);
+		background: rgba(234, 251, 245, 0.06);
+		border: 1px solid var(--line-dark);
+	}
+	.morphs img {
+		display: block;
+		width: 100%;
+		height: auto;
+		filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.35));
+		transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+	}
+	.morphs li:hover img {
+		transform: translateY(-4px) scale(1.04);
+	}
+	.morphs span {
+		display: block;
+		margin-top: 0.35rem;
+		font-family: var(--font-display);
+		font-weight: 500;
+	}
+	@media (min-width: 48rem) {
+		.morphs {
+			grid-template-columns: repeat(4, 1fr);
+		}
+	}
+
+	/* ---------- Screenshots ---------- */
+	.shots {
+		padding-bottom: clamp(2rem, 5vw, 3.5rem);
+	}
+	.shots .section-head {
+		margin-bottom: 1rem;
+	}
+
+	/* ---------- Trailer ---------- */
+	.trailer-grid {
+		display: grid;
+		gap: 1.75rem 3rem;
+		align-items: center;
+	}
+	.trailer h2 {
+		margin: 0 0 0.6rem;
+		font-size: clamp(1.7rem, 1.3rem + 1.8vw, 2.5rem);
+	}
+	.trailer .muted {
+		margin-bottom: 1.25rem;
+		max-width: 26rem;
+	}
+	.trailer-frame {
+		border-radius: var(--radius-l);
+		overflow: hidden;
+		box-shadow: var(--shadow-2);
+	}
+	@media (min-width: 62rem) {
+		.trailer-grid {
+			grid-template-columns: 1fr 1.6fr;
+		}
+	}
+
+	/* ---------- Related ---------- */
+	.more-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.5rem 1rem;
+		margin-bottom: 1.5rem;
+	}
+	.more-head h2 {
+		margin: 0;
+		font-size: clamp(1.6rem, 1.25rem + 1.5vw, 2.2rem);
+	}
+	.more-head a {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		font-weight: 650;
+	}
+	.related {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 17.5rem), 1fr));
+		gap: 1.5rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.related li {
+		display: grid;
+		margin: 0;
+	}
+</style>
