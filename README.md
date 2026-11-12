@@ -47,7 +47,8 @@ page, the footer links, the sitemap and the search/social metadata are all gener
 - Components: `src/components/` (`CollectionTile` for the homepage collections, `GameCard` for
   "More from BioLuma Labs", `PlayPoster` + `MediaViewer` for trailers and the screenshot lightbox, `StoreLinks`).
 - `public/og.jpg` is the default 1200×630 share image (social sites don't render SVG).
-- The heading font is Fredoka (SIL Open Font License, see `public/fonts/OFL-Fredoka.txt`).
+- The heading font is Fredoka and the body font is Figtree (both SIL Open Font License, see
+  `public/fonts/OFL-Fredoka.txt` and `public/fonts/OFL-Figtree.txt`).
 
 ```bash
 npm install

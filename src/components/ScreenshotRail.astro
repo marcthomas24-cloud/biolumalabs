@@ -7,11 +7,19 @@ interface Props {
 }
 
 const { shots, label } = Astro.props;
+
+// Portrait shots taken on different phones come in slightly different shapes.
+// When they're mixed, give them all the median shape so the rail reads as one
+// even row. Each one opens uncropped in the viewer.
+const tall = shots.filter((s) => s.height > s.width).map((s) => s.width / s.height).sort((a, b) => a - b);
+const mixed = tall.length > 1 && tall[tall.length - 1] - tall[0] > 0.02;
+const median = tall[Math.floor(tall.length / 2)];
+const ratio = (s: Screenshot) => (mixed && s.height > s.width ? `${median}` : `${s.width} / ${s.height}`);
 ---
 
 <ul class="rail" aria-label={label} tabindex="0">
 	{shots.map((s) => (
-		<li style={`aspect-ratio: ${s.width} / ${s.height}`} class:list={{ tall: s.height > s.width }}>
+		<li style={`aspect-ratio: ${ratio(s)}`} class:list={{ tall: s.height > s.width }}>
 			<a href={s.src} data-zoom>
 				<img src={s.src} alt={s.alt} width={s.width} height={s.height} loading="lazy" decoding="async" />
 			</a>
